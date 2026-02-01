@@ -5,10 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Login | CupX Corporation</title>
-
   <meta name="description" content="Login portal for CupX Corporation tools and services." />
 
   <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    /* Header */
     header {
       background: #020617;
       padding: 16px 20px;
@@ -22,15 +29,13 @@
       text-decoration: none;
       font-size: 14px;
     }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
+
+    /* Centering wrapper */
+    .page {
+      min-height: calc(100vh - 64px);
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
     }
 
     .login-box {
@@ -99,13 +104,14 @@
   </style>
 </head>
 
+<body>
+
 <header>
   <strong>CupX Corporation</strong>
   <a href="index.html">← Back to Home</a>
 </header>
-  
-<body>
 
+<div class="page">
   <div class="login-box">
     <h1>CupX Login</h1>
     <p>Access CupX tools & services</p>
@@ -126,6 +132,7 @@
       <a href="mailto:info@cupx.in">info@cupx.in</a>
     </div>
   </div>
+</div>
 
 </body>
 </html>
