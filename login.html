@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Login | CupX Corporation</title>
+
+  <meta name="description" content="Login portal for CupX Corporation tools and services." />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .login-box {
+      background: #020617;
+      padding: 30px;
+      width: 100%;
+      max-width: 360px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    p {
+      text-align: center;
+      font-size: 14px;
+      opacity: 0.85;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 18px;
+      border-radius: 4px;
+      border: none;
+      outline: none;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #38bdf8;
+      border: none;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0ea5e9;
+    }
+
+    .note {
+      margin-top: 18px;
+      font-size: 13px;
+      text-align: center;
+      opacity: 0.7;
+    }
+
+    a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-box">
+    <h1>CupX Login</h1>
+    <p>Access CupX tools & services</p>
+
+    <form>
+      <label>Email</label>
+      <input type="email" placeholder="you@cupx.in" disabled>
+
+      <label>Password</label>
+      <input type="password" placeholder="••••••••" disabled>
+
+      <button type="button">Login</button>
+    </form>
+
+    <div class="note">
+      Login system is under development.<br>
+      For now, contact us at
+      <a href="mailto:info@cupx.in">info@cupx.in</a>
+    </div>
+  </div>
+
+</body>
+</html>
