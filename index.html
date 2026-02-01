@@ -1,81 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CupX — Coming Soon</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>CupX Corporation | Student Tech Tools & Projects</title>
+
+  <!-- SEO META -->
+  <meta name="description" content="CupX Corporation is a student-led technology initiative building tools like calculators, attendance systems, and practical software projects." />
+  <meta name="keywords" content="CupX, CupX Corporation, CupX tools, student tech projects, calculator, attendance system" />
+  <meta name="author" content="CupX Corporation" />
+
+  <!-- Social Preview -->
+  <meta property="og:title" content="CupX Corporation" />
+  <meta property="og:description" content="Student-built tech tools and software projects by CupX Corporation." />
+  <meta property="og:url" content="https://cupx.in" />
+  <meta property="og:type" content="website" />
+
   <style>
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #ffffff;
+      background-color: #0f172a;
+      color: #e5e7eb;
+    }
+
+    header {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      padding: 16px 20px;
+      background-color: #020617;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    nav a {
+      color: #e5e7eb;
+      text-decoration: none;
+      margin-left: 15px;
+      font-size: 14px;
+    }
+
+    section {
+      padding: 50px 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .hero {
       text-align: center;
     }
-    .container {
-      padding: 30px;
-      max-width: 500px;
-    }
-    .logo {
-      width: 120px;
-      height: 120px;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      background: #ffffff;
-      color: #2c5364;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+
+    .hero h2 {
       font-size: 36px;
-      font-weight: bold;
+      margin-bottom: 10px;
     }
-    h1 {
-      margin: 10px 0;
-      font-size: 36px;
-    }
-    p {
-      margin: 10px 0 20px;
+
+    .hero p {
       font-size: 16px;
       opacity: 0.9;
     }
-    .links a {
-      display: block;
-      margin: 8px 0;
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 16px;
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
     }
-    .links a:hover {
-      text-decoration: underline;
+
+    .card {
+      background-color: #020617;
+      padding: 20px;
+      border-radius: 8px;
     }
-    .footer {
-      margin-top: 25px;
+
+    footer {
+      text-align: center;
+      padding: 20px;
       font-size: 13px;
-      opacity: 0.7;
+      background-color: #020617;
+      opacity: 0.8;
+    }
+
+    a {
+      color: #38bdf8;
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <!-- Logo placeholder: replace this div with an <img src="logo.png"> if you add a logo -->
-    
-<img src="logo.png" alt="CupX Logo" style="width:120px;margin-bottom:20px;">
-    <h1>Coming Soon</h1>
-    <p>We’re building something exciting at <strong>CupX</strong>.<br/>Stay connected with us.</p>
 
-    <div class="links">
-      <a href="https://instagram.com/cupxcarp" target="_blank">Instagram: @cupxcarp</a>
-      <a href="https://x.com/cupxc" target="_blank">X (Twitter): @cupxc</a>
-      <a href="mailto:info@cupx.in">Email: info@cupx.in</a>
+<body>
+
+<header>
+  <h1>CupX</h1>
+  <nav>
+    <a href="#tools">Tools</a>
+    <a href="#contact">Contact</a>
+    <a href="#about">About</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h2>CupX Corporation</h2>
+  <p>
+    CupX Corporation is a student-led technology initiative focused on building
+    practical tools, calculators, and software projects while learning computer science.
+  </p>
+</section>
+
+<section id="tools">
+  <h2>Projects & Tools</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Calculator</h3>
+      <p>A simple and useful calculator built using web technologies.</p>
     </div>
 
-    <div class="footer">
-      © 2026 CupX. All rights reserved.
+    <div class="card">
+      <h3>Attendance System</h3>
+      <p>A basic attendance record system designed for learning and demonstration.</p>
     </div>
   </div>
+</section>
+
+<section id="contact">
+  <h2>Contact</h2>
+  <p>Email: <a href="mailto:info@cupx.in">info@cupx.in</a></p>
+  <p>Instagram: <a href="https://instagram.com/cupxcarp" target="_blank">@cupxcarp</a></p>
+  <p>X (Twitter): <a href="https://x.com/cupxc" target="_blank">@cupxc</a></p>
+</section>
+
+<section id="about">
+  <h2>About CupX</h2>
+  <p>
+    CupX Corporation was created as a learning-first initiative to explore real-world
+    software development through hands-on projects. It represents growth, practice,
+    and experimentation in technology.
+  </p>
+</section>
+
+<footer>
+  © 2026 CupX Corporation · All rights reserved
+</footer>
+
 </body>
 </html>
