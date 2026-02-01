@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Attendance System | CupX Corporation</title>
+
+  <meta name="description" content="Simple attendance record system built by CupX Corporation for learning and demonstration." />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    header {
+      padding: 16px 20px;
+      background: #020617;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header a {
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    main {
+      max-width: 900px;
+      margin: auto;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    p {
+      text-align: center;
+      opacity: 0.85;
+      margin-bottom: 30px;
+    }
+
+    .form-box {
+      background: #020617;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 4px;
+      border: none;
+      font-size: 14px;
+    }
+
+    button {
+      background: #38bdf8;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0ea5e9;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #020617;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #1e293b;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: #020617;
+    }
+
+    .present {
+      color: #22c55e;
+      font-weight: bold;
+    }
+
+    .absent {
+      color: #ef4444;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <strong>CupX Attendance</strong>
+  <a href="index.html">← Back to Home</a>
+</header>
+
+<main>
+  <h1>Attendance System</h1>
+  <p>Simple attendance record tool by CupX Corporation</p>
+
+  <div class="form-box">
+    <input type="text" id="name" placeholder="Student Name">
+    <input type="text" id="roll" placeholder="Roll Number">
+
+    <select id="status">
+      <option value="Present">Present</option>
+      <option value="Absent">Absent</option>
+    </select>
+
+    <button onclick="addAttendance()">Add Record</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Roll</th>
+        <th>Status</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody id="records"></tbody>
+  </table>
+</main>
+
+<script>
+  let records = JSON.parse(localStorage.getItem("attendance")) || [];
+
+  function render() {
+    const table = document.getElementById("records");
+    table.innerHTML = "";
+
+    records.forEach(r => {
+      table.innerHTML += `
+        <tr>
+          <td>${r.name}</td>
+          <td>${r.roll}</td>
+          <td class="${r.status === 'Present' ? 'present' : 'absent'}">
+            ${r.status}
+          </td>
+          <td>${r.date}</td>
+        </tr>
+      `;
+    });
+  }
+
+  function addAttendance() {
+    const name = document.getElementById("name").value.trim();
+    const roll = document.getElementById("roll").value.trim();
+    const status = document.getElementById("status").value;
+
+    if (!name || !roll) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    const record = {
+      name,
+      roll,
+      status,
+      date: new Date().toLocaleDateString()
+    };
+
+    records.push(record);
+    localStorage.setItem("attendance", JSON.stringify(records));
+
+    document.getElementById("name").value = "";
+    document.getElementById("roll").value = "";
+
+    render();
+  }
+
+  render();
+</script>
+
+</body>
+</html>
