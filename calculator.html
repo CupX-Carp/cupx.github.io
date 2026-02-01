@@ -1,62 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Calculator | CupX Corporation</title>
 
-  <meta name="description" content="Simple web calculator built by CupX Corporation." />
+  <meta name="description" content="Simple and clean calculator built by CupX Corporation." />
 
   <style>
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      background: #0f172a;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
-    .calc-box {
-      background: #020617;
-      padding: 20px;
-      border-radius: 8px;
+    .calculator {
       width: 100%;
       max-width: 320px;
+      background: #020617;
+      padding: 16px;
+      border-radius: 10px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.5);
     }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-
-    input {
+    .display {
       width: 100%;
-      padding: 12px;
-      font-size: 18px;
+      height: 55px;
       margin-bottom: 15px;
-      border: none;
-      border-radius: 4px;
+      padding: 10px;
+      font-size: 22px;
       text-align: right;
+      border: none;
+      border-radius: 6px;
+      background: #020617;
+      color: #ffffff;
+      box-sizing: border-box;
     }
 
-    .grid {
+    .buttons {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
     }
 
     button {
-      padding: 12px;
+      height: 48px;
       font-size: 16px;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
       background: #1e293b;
-      color: #e5e7eb;
+      color: #ffffff;
     }
 
     button:hover {
@@ -64,14 +63,42 @@
       color: #020617;
     }
 
+    .operator {
+      background: #334155;
+    }
+
+    .equal {
+      background: #38bdf8;
+      color: #020617;
+      font-weight: bold;
+    }
+
+    .clear {
+      background: #ef4444;
+      font-weight: bold;
+    }
+
+    .back {
+      background: #475569;
+    }
+
     .wide {
       grid-column: span 2;
     }
 
-    a {
-      display: block;
+    .title {
       text-align: center;
-      margin-top: 15px;
+      color: #e5e7eb;
+      margin-bottom: 12px;
+      font-size: 18px;
+    }
+
+    .home {
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .home a {
       color: #38bdf8;
       text-decoration: none;
       font-size: 14px;
@@ -81,35 +108,39 @@
 
 <body>
 
-<div class="calc-box">
-  <h1>Calculator</h1>
-  <input type="text" id="display" disabled>
+<div class="calculator">
+  <div class="title">CupX Calculator</div>
 
-  <div class="grid">
+  <input type="text" id="display" class="display" readonly>
+
+  <div class="buttons">
+    <button class="clear wide" onclick="clearDisplay()">C</button>
+    <button class="back" onclick="backspace()">⌫</button>
+    <button class="operator" onclick="add('/')">÷</button>
+
     <button onclick="add('7')">7</button>
     <button onclick="add('8')">8</button>
     <button onclick="add('9')">9</button>
-    <button onclick="add('/')">÷</button>
+    <button class="operator" onclick="add('*')">×</button>
 
     <button onclick="add('4')">4</button>
     <button onclick="add('5')">5</button>
     <button onclick="add('6')">6</button>
-    <button onclick="add('*')">×</button>
+    <button class="operator" onclick="add('-')">−</button>
 
     <button onclick="add('1')">1</button>
     <button onclick="add('2')">2</button>
     <button onclick="add('3')">3</button>
-    <button onclick="add('-')">−</button>
+    <button class="operator" onclick="add('+')">+</button>
 
-    <button onclick="add('0')">0</button>
+    <button class="wide" onclick="add('0')">0</button>
     <button onclick="add('.')">.</button>
-    <button onclick="calculate()" class="wide">=</button>
-    <button onclick="add('+')">+</button>
-
-    <button onclick="clearDisplay()" class="wide">Clear</button>
+    <button class="equal" onclick="calculate()">=</button>
   </div>
 
-  <a href="index.html">← Back to Home</a>
+  <div class="home">
+    <a href="index.html">← Back to Home</a>
+  </div>
 </div>
 
 <script>
@@ -121,6 +152,10 @@
 
   function clearDisplay() {
     display.value = "";
+  }
+
+  function backspace() {
+    display.value = display.value.slice(0, -1);
   }
 
   function calculate() {
