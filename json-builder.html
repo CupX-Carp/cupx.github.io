@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JSON Builder | CupX Tools</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .box {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 6px 0 12px 0;
+    }
+
+    button {
+      padding: 10px 15px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background: #2563eb;
+      color: white;
+      font-weight: bold;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>JSON Builder</h2>
+
+<div class="box">
+
+  <label>How many fields (columns)?</label>
+  <input type="number" id="fieldCount">
+
+  <div id="fieldNames"></div>
+
+  <label>How many data entries?</label>
+  <input type="number" id="dataCount">
+
+  <button onclick="generateForm()">Generate Form</button>
+
+  <div id="dataInputs"></div>
+
+  <button id="createBtn" class="hidden" onclick="createJSON()">Create JSON</button>
+
+  <textarea id="output" readonly></textarea>
+  <button id="downloadBtn" class="hidden" onclick="downloadJSON()">Download JSON</button>
+
+</div>
+
+<script>
+let fields = [];
+
+document.getElementById("fieldCount").addEventListener("change", function() {
+  const count = this.value;
+  const container = document.getElementById("fieldNames");
+  container.innerHTML = "";
+  fields = [];
+
+  for (let i = 0; i < count; i++) {
+    container.innerHTML += `
+      <label>Field ${i + 1} name:</label>
+      <input type="text" class="fieldInput">
+    `;
+  }
+});
+
+function generateForm() {
+  fields = [];
+  document.querySelectorAll(".fieldInput").forEach(input => {
+    fields.push(input.value.trim());
+  });
+
+  const dataCount = document.getElementById("dataCount").value;
+  const container = document.getElementById("dataInputs");
+  container.innerHTML = "";
+
+  for (let i = 0; i < dataCount; i++) {
+    container.innerHTML += `<h4>Entry ${i + 1}</h4>`;
+    fields.forEach(field => {
+      container.innerHTML += `
+        <label>${field}:</label>
+        <input type="text" data-entry="${i}" data-field="${field}">
+      `;
+    });
+  }
+
+  document.getElementById("createBtn").classList.remove("hidden");
+}
+
+function createJSON() {
+  const dataCount = document.getElementById("dataCount").value;
+  let result = [];
+
+  for (let i = 0; i < dataCount; i++) {
+    let obj = {};
+    fields.forEach(field => {
+      const input = document.querySelector(
+        `input[data-entry="${i}"][data-field="${field}"]`
+      );
+      obj[field] = input.value;
+    });
+    result.push(obj);
+  }
+
+  let finalJSON;
+  if (result.length === 1) {
+    finalJSON = JSON.stringify(result[0], null, 2);
+  } else {
+    finalJSON = JSON.stringify(result, null, 2);
+  }
+
+  document.getElementById("output").value = finalJSON;
+  document.getElementById("downloadBtn").classList.remove("hidden");
+}
+
+function downloadJSON() {
+  const data = document.getElementById("output").value;
+  const blob = new Blob([data], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "data.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
