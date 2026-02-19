@@ -139,6 +139,15 @@ textarea {
   background: #38bdf8;
   color: #020617;
 }
+
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 13px;
+  background: #020617;
+  opacity: 0.8;
+  margin-top: 50px;
+}
 </style>
 </head>
 
@@ -155,7 +164,7 @@ textarea {
     <h1>Guided JSON Builder</h1>
 
     <div class="prompt" id="promptText">
-      Enter number of columns:
+      Enter number of fields / columns:
     </div>
 
     <div class="input-wrapper">
@@ -179,11 +188,15 @@ textarea {
   </div>
 </main>
 
+<footer>
+  © 2026 CupX Corporation · All rights reserved
+</footer>
+
 <script>
 let step = 0;
-let columnCount = 0;
-let columns = [];
-let currentColumn = 0;
+let fieldCount = 0;
+let fields = [];
+let currentField = 0;
 let entries = [];
 let currentEntry = {};
 
@@ -208,7 +221,7 @@ function updatePreview() {
   if (step !== 2) return;
 
   const tempEntry = { ...currentEntry };
-  tempEntry[columns[currentColumn]] = input.value;
+  tempEntry[fields[currentField]] = input.value;
 
   const preview = [...entries, tempEntry];
   output.value = JSON.stringify(preview, null, 2);
@@ -220,46 +233,50 @@ function submitInput() {
 
   if (step === 0) {
     if (isNaN(value)) {
-      alert("Columns must be a number.");
+      alert("Number of fields must be a number.");
       return;
     }
-    columnCount = Number(value);
-    promptText.innerText = "Enter name of Column 1:";
+    fieldCount = Number(value);
+    promptText.innerText = "Enter name of Field 1:";
     step = 1;
   }
 
   else if (step === 1) {
-    columns.push(value);
-    currentColumn++;
-    if (currentColumn < columnCount) {
-      promptText.innerText = `Enter name of Column ${currentColumn + 1}:`;
+    fields.push(value);
+    currentField++;
+    if (currentField < fieldCount) {
+      promptText.innerText = `Enter name of Field ${currentField + 1}:`;
     } else {
-      currentColumn = 0;
-      promptText.innerText = `Entry 1 - Enter ${columns[0]}:`;
+      currentField = 0;
+      promptText.innerText = `Entry 1 - Enter ${fields[0]}:`;
       step = 2;
     }
   }
 
   else if (step === 2) {
-    currentEntry[columns[currentColumn]] = detectType(value);
-    currentColumn++;
+    currentEntry[fields[currentField]] = detectType(value);
+    currentField++;
 
-    if (currentColumn < columnCount) {
+    if (currentField < fieldCount) {
       promptText.innerText =
-        `Entry ${entries.length + 1} - Enter ${columns[currentColumn]}:`;
+        `Entry ${entries.length + 1} - Enter ${fields[currentField]}:`;
       disableDone();
     } else {
       entries.push(currentEntry);
       currentEntry = {};
-      currentColumn = 0;
+      currentField = 0;
       promptText.innerText =
-        `Entry ${entries.length + 1} - Enter ${columns[0]}:`;
+        `Entry ${entries.length + 1} - Enter ${fields[0]}:`;
       enableDone();
     }
   }
 
   input.value = "";
-  updatePreview();
+  updateJSON();
+}
+
+function updateJSON() {
+  output.value = JSON.stringify(entries, null, 2);
 }
 
 function enableDone() {
@@ -292,7 +309,7 @@ function downloadJSON() {
 }
 
 function copyJSON() {
-  if (currentColumn !== 0) {
+  if (currentField !== 0) {
     alert("Enter all fields of current entry.");
     return;
   }
@@ -304,4 +321,4 @@ function copyJSON() {
 </script>
 
 </body>
-</html>
+  </html>
