@@ -11,6 +11,9 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   background-color: #0f172a;
   color: #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 header {
@@ -28,6 +31,7 @@ header a {
 }
 
 main {
+  flex: 1;
   max-width: 750px;
   margin: auto;
   padding: 50px 20px;
@@ -36,12 +40,13 @@ main {
 .box {
   background: #020617;
   padding: 30px;
-  border-radius: 14px;
+  border-radius: 16px;
 }
 
 h1 {
   text-align: center;
   margin-top: 0;
+  white-space: nowrap;
 }
 
 .prompt {
@@ -50,9 +55,8 @@ h1 {
 
 /* INPUT */
 .input-wrapper {
-  margin: 0 auto 25px auto;
   position: relative;
-  width: 100%;
+  margin-bottom: 25px;
 }
 
 input {
@@ -77,9 +81,15 @@ input {
   cursor: pointer;
 }
 
-/* JSON SCREEN */
+.enter-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: #020617;
+}
+
+/* JSON */
 .json-container {
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   margin-top: 10px;
 }
@@ -96,7 +106,6 @@ input {
   background: none;
   border: none;
   cursor: pointer;
-  color: #38bdf8;
 }
 
 .copy-btn svg {
@@ -107,7 +116,8 @@ input {
 
 textarea {
   width: 100%;
-  height: 260px;
+  height: 65vh; /* 2/3–3/4 visual area */
+  max-height: 500px;
   border: none;
   padding: 16px;
   font-size: 13px;
@@ -146,7 +156,6 @@ footer {
   font-size: 13px;
   background: #020617;
   opacity: 0.8;
-  margin-top: 50px;
 }
 </style>
 </head>
@@ -169,7 +178,11 @@ footer {
 
     <div class="input-wrapper">
       <input type="text" id="userInput">
-      <button class="enter-btn" onclick="submitInput()">↵</button>
+      <button class="enter-btn" onclick="submitInput()">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 12h14l-4-4v3H3v2h10v3l4-4z"/>
+        </svg>
+      </button>
     </div>
 
     <div class="json-container">
@@ -220,10 +233,10 @@ function detectType(value) {
 function updatePreview() {
   if (step !== 2) return;
 
-  const tempEntry = { ...currentEntry };
-  tempEntry[fields[currentField]] = input.value;
+  const temp = { ...currentEntry };
+  temp[fields[currentField]] = input.value;
 
-  const preview = [...entries, tempEntry];
+  const preview = [...entries, temp];
   output.value = JSON.stringify(preview, null, 2);
 }
 
@@ -272,11 +285,7 @@ function submitInput() {
   }
 
   input.value = "";
-  updateJSON();
-}
-
-function updateJSON() {
-  output.value = JSON.stringify(entries, null, 2);
+  updatePreview();
 }
 
 function enableDone() {
@@ -294,6 +303,7 @@ function finishJSON() {
     alert("Enter all fields of current entry.");
     return;
   }
+
   doneBtn.innerText = "Download JSON";
   doneBtn.onclick = downloadJSON;
 }
@@ -321,4 +331,4 @@ function copyJSON() {
 </script>
 
 </body>
-  </html>
+</html>
