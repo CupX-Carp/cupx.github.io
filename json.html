@@ -103,12 +103,12 @@ textarea {
     <h1>Guided JSON Builder</h1>
 
     <div class="prompt" id="promptText">
-      Enter number of fields (columns):
+      Enter number of columns:
     </div>
 
-    <input type="text" id="userInput">
+    <input type="text" id="userInput" autofocus>
 
-    <button id="doneBtn" disabled>Done</button>
+    <button id="doneBtn">Done</button>
 
     <textarea id="output" readonly></textarea>
   </div>
@@ -116,93 +116,87 @@ textarea {
 
 <script>
 let step = 0;
-let fieldCount = 0;
-let fields = [];
-let elementCount = 0;
-let currentElement = 0;
-let currentField = 0;
-let result = [];
+let columnCount = 0;
+let columns = [];
+let currentColumn = 0;
+let entries = [];
+let currentEntry = {};
+let enteringData = false;
 
 const input = document.getElementById("userInput");
 const promptText = document.getElementById("promptText");
 const doneBtn = document.getElementById("doneBtn");
 const output = document.getElementById("output");
 
-input.addEventListener("input", validateInput);
-doneBtn.addEventListener("click", nextStep);
+doneBtn.disabled = true;
 
-function validateInput() {
-  if (input.value.trim() !== "") {
-    doneBtn.disabled = false;
-    doneBtn.classList.add("active");
-  } else {
-    doneBtn.disabled = true;
-    doneBtn.classList.remove("active");
+// ENTER key handling
+input.addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && input.value.trim() !== "") {
+    handleInput();
   }
-}
+});
 
-function nextStep() {
+// Done button click
+doneBtn.addEventListener("click", finishJSON);
+
+function handleInput() {
   const value = input.value.trim();
 
   if (step === 0) {
-    fieldCount = parseInt(value);
-    if (isNaN(fieldCount) || fieldCount <= 0) return;
-    promptText.innerText = "Enter name of Field 1:";
+    columnCount = parseInt(value);
+    if (isNaN(columnCount) || columnCount <= 0) return;
+
+    promptText.innerText = "Enter name of Column 1:";
     step = 1;
   }
 
   else if (step === 1) {
-    fields.push(value);
-    if (fields.length < fieldCount) {
-      promptText.innerText = `Enter name of Field ${fields.length + 1}:`;
+    columns.push(value);
+    currentColumn++;
+
+    if (currentColumn < columnCount) {
+      promptText.innerText =
+        `Enter name of Column ${currentColumn + 1}:`;
     } else {
-      promptText.innerText = "Enter number of elements:";
+      enteringData = true;
+      currentColumn = 0;
+      promptText.innerText =
+        `Entry 1 - Enter ${columns[0]}:`;
       step = 2;
     }
   }
 
-  else if (step === 2) {
-    elementCount = parseInt(value);
-    if (isNaN(elementCount) || elementCount <= 0) return;
-    result = Array.from({ length: elementCount }, () => ({}));
-    currentElement = 0;
-    currentField = 0;
-    promptText.innerText = `Element 1 - Enter ${fields[0]}:`;
-    step = 3;
-  }
+  else if (step === 2 && enteringData) {
+    currentEntry[columns[currentColumn]] = value;
+    currentColumn++;
 
-  else if (step === 3) {
-    result[currentElement][fields[currentField]] = value;
-
-    currentField++;
-
-    if (currentField < fieldCount) {
+    if (currentColumn < columnCount) {
       promptText.innerText =
-        `Element ${currentElement + 1} - Enter ${fields[currentField]}:`;
+        `Entry ${entries.length + 1} - Enter ${columns[currentColumn]}:`;
     } else {
-      currentField = 0;
-      currentElement++;
+      entries.push(currentEntry);
+      currentEntry = {};
+      currentColumn = 0;
 
-      if (currentElement < elementCount) {
-        promptText.innerText =
-          `Element ${currentElement + 1} - Enter ${fields[0]}:`;
-      } else {
-        promptText.innerText = "JSON Generated Below:";
-        output.value =
-          elementCount === 1
-            ? JSON.stringify(result[0], null, 2)
-            : JSON.stringify(result, null, 2);
+      promptText.innerText =
+        `Entry ${entries.length + 1} - Enter ${columns[0]}:`;
 
-        doneBtn.disabled = true;
-        doneBtn.classList.remove("active");
-        input.disabled = true;
-        return;
-      }
+      doneBtn.disabled = false;
+      doneBtn.classList.add("active");
     }
   }
 
   input.value = "";
-  validateInput();
+}
+
+function finishJSON() {
+  if (entries.length === 0) return;
+
+  output.value =
+    entries.length === 1
+      ? JSON.stringify(entries[0], null, 2)
+      : JSON.stringify(entries, null, 2);
 }
 </script>
 
