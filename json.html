@@ -28,7 +28,7 @@ header a {
 }
 
 main {
-  max-width: 700px;
+  max-width: 750px;
   margin: auto;
   padding: 50px 20px;
 }
@@ -36,77 +36,93 @@ main {
 .box {
   background: #020617;
   padding: 30px;
-  border-radius: 10px;
+  border-radius: 14px;
 }
 
 h1 {
   text-align: center;
+  margin-top: 0;
 }
 
 .prompt {
   margin-bottom: 10px;
 }
 
+/* INPUT */
 .input-wrapper {
+  margin: 0 auto 25px auto;
   position: relative;
+  width: 100%;
 }
 
 input {
   width: 100%;
-  padding: 12px 45px 12px 12px;
-  border-radius: 6px;
+  padding: 14px 50px 14px 14px;
+  border-radius: 12px;
   border: none;
   font-size: 14px;
+  background: #1e293b;
+  color: #e5e7eb;
+  box-sizing: border-box;
 }
 
 .enter-btn {
   position: absolute;
   right: 8px;
-  top: 6px;
+  top: 7px;
   background: #38bdf8;
   border: none;
-  padding: 6px 10px;
-  border-radius: 5px;
+  padding: 8px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
-  color: #020617;
+}
+
+/* JSON SCREEN */
+.json-container {
+  border-radius: 14px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.json-top {
+  background: #1e293b;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #38bdf8;
+}
+
+.copy-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: #38bdf8;
 }
 
 textarea {
   width: 100%;
-  height: 220px;
-  margin-top: 20px;
-  border-radius: 6px;
+  height: 260px;
   border: none;
-  padding: 12px;
+  padding: 16px;
   font-size: 13px;
+  background: #0b1220;
+  color: #38bdf8;
+  resize: none;
+  box-sizing: border-box;
 }
 
-.json-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.small-btn {
-  background: #334155;
-  color: #e5e7eb;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.small-btn:hover {
-  background: #475569;
-}
-
+/* DONE */
 #doneBtn {
   width: 100%;
   margin-top: 20px;
-  padding: 14px;
-  border-radius: 6px;
+  padding: 16px;
+  border-radius: 12px;
   border: none;
   font-weight: bold;
   font-size: 16px;
@@ -135,6 +151,7 @@ textarea {
 
 <main>
   <div class="box">
+
     <h1>Guided JSON Builder</h1>
 
     <div class="prompt" id="promptText">
@@ -143,17 +160,22 @@ textarea {
 
     <div class="input-wrapper">
       <input type="text" id="userInput">
-      <button class="enter-btn" onclick="handleInput()">↵</button>
+      <button class="enter-btn" onclick="submitInput()">↵</button>
     </div>
 
-    <div class="json-header">
-      <strong>Live JSON Output</strong>
-      <button class="small-btn" onclick="copyJSON()">Copy</button>
+    <div class="json-container">
+      <div class="json-top">
+        <button class="copy-btn" onclick="copyJSON()">
+          <svg viewBox="0 0 24 24">
+            <path d="M16 1H4C2.9 1 2 1.9 2 3V15H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5Z"/>
+          </svg>
+        </button>
+      </div>
+      <textarea id="output" readonly></textarea>
     </div>
-
-    <textarea id="output" readonly></textarea>
 
     <button id="doneBtn" class="disabled" onclick="finishJSON()">Done</button>
+
   </div>
 </main>
 
@@ -170,25 +192,38 @@ const promptText = document.getElementById("promptText");
 const doneBtn = document.getElementById("doneBtn");
 const output = document.getElementById("output");
 
+input.addEventListener("input", updatePreview);
 input.addEventListener("keydown", e => {
-  if (e.key === "Enter") handleInput();
+  if (e.key === "Enter") submitInput();
 });
 
-function updateJSON() {
-  if (entries.length === 0) {
-    output.value = "";
-    return;
-  }
-  output.value = JSON.stringify(entries, null, 2);
+function detectType(value) {
+  if (!isNaN(value) && value.trim() !== "") return Number(value);
+  if (value.toLowerCase() === "true") return true;
+  if (value.toLowerCase() === "false") return false;
+  return value;
 }
 
-function handleInput() {
+function updatePreview() {
+  if (step !== 2) return;
+
+  const tempEntry = { ...currentEntry };
+  tempEntry[columns[currentColumn]] = input.value;
+
+  const preview = [...entries, tempEntry];
+  output.value = JSON.stringify(preview, null, 2);
+}
+
+function submitInput() {
   const value = input.value.trim();
   if (!value) return;
 
   if (step === 0) {
-    columnCount = parseInt(value);
-    if (isNaN(columnCount) || columnCount <= 0) return;
+    if (isNaN(value)) {
+      alert("Columns must be a number.");
+      return;
+    }
+    columnCount = Number(value);
     promptText.innerText = "Enter name of Column 1:";
     step = 1;
   }
@@ -196,18 +231,17 @@ function handleInput() {
   else if (step === 1) {
     columns.push(value);
     currentColumn++;
-
     if (currentColumn < columnCount) {
       promptText.innerText = `Enter name of Column ${currentColumn + 1}:`;
     } else {
-      promptText.innerText = `Entry 1 - Enter ${columns[0]}:`;
       currentColumn = 0;
+      promptText.innerText = `Entry 1 - Enter ${columns[0]}:`;
       step = 2;
     }
   }
 
   else if (step === 2) {
-    currentEntry[columns[currentColumn]] = value;
+    currentEntry[columns[currentColumn]] = detectType(value);
     currentColumn++;
 
     if (currentColumn < columnCount) {
@@ -221,11 +255,11 @@ function handleInput() {
       promptText.innerText =
         `Entry ${entries.length + 1} - Enter ${columns[0]}:`;
       enableDone();
-      updateJSON();
     }
   }
 
   input.value = "";
+  updatePreview();
 }
 
 function enableDone() {
@@ -240,16 +274,32 @@ function disableDone() {
 
 function finishJSON() {
   if (doneBtn.classList.contains("disabled")) {
-    alert("Complete all fields of the current entry before finishing.");
+    alert("Enter all fields of current entry.");
     return;
   }
-  updateJSON();
+  doneBtn.innerText = "Download JSON";
+  doneBtn.onclick = downloadJSON;
+}
+
+function downloadJSON() {
+  const blob = new Blob([output.value], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "data.json";
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function copyJSON() {
+  if (currentColumn !== 0) {
+    alert("Enter all fields of current entry.");
+    return;
+  }
   if (!output.value) return;
+
   navigator.clipboard.writeText(output.value);
-  alert("Copied to clipboard!");
+  alert("Copied to clipboard");
 }
 </script>
 
