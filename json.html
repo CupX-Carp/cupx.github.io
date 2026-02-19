@@ -50,8 +50,9 @@ h1 {
 
 /* INPUT */
 .input-wrapper {
-  margin-bottom: 25px;
+  margin: 0 auto 25px auto;
   position: relative;
+  width: 100%;
 }
 
 input {
@@ -65,19 +66,15 @@ input {
   box-sizing: border-box;
 }
 
-.icon-btn {
+.enter-btn {
   position: absolute;
   right: 8px;
   top: 7px;
-  background: none;
+  background: #38bdf8;
   border: none;
+  padding: 8px;
+  border-radius: 8px;
   cursor: pointer;
-}
-
-.icon-btn svg {
-  width: 22px;
-  height: 22px;
-  fill: #38bdf8;
 }
 
 /* JSON SCREEN */
@@ -93,6 +90,19 @@ input {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+}
+
+.copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #38bdf8;
+}
+
+.copy-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: #38bdf8;
 }
 
 textarea {
@@ -159,18 +169,12 @@ footer {
 
     <div class="input-wrapper">
       <input type="text" id="userInput">
-      <button class="icon-btn" onclick="submitInput()">
-        <!-- Enter Icon -->
-        <svg viewBox="0 0 24 24">
-          <path d="M3 12h12l-4-4 1.41-1.41L19.83 12l-7.42 5.41L11 16l4-4H3z"/>
-        </svg>
-      </button>
+      <button class="enter-btn" onclick="submitInput()">↵</button>
     </div>
 
     <div class="json-container">
       <div class="json-top">
-        <button class="icon-btn" onclick="copyJSON()">
-          <!-- Copy Icon -->
+        <button class="copy-btn" onclick="copyJSON()">
           <svg viewBox="0 0 24 24">
             <path d="M16 1H4C2.9 1 2 1.9 2 3V15H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5Z"/>
           </svg>
@@ -286,7 +290,6 @@ function finishJSON() {
     alert("Enter all fields of current entry.");
     return;
   }
-
   doneBtn.innerText = "Download JSON";
   doneBtn.onclick = downloadJSON;
 }
@@ -306,7 +309,6 @@ function copyJSON() {
     alert("Enter all fields of current entry.");
     return;
   }
-
   if (!output.value) return;
 
   navigator.clipboard.writeText(output.value);
