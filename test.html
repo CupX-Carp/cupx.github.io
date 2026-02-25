@@ -19,22 +19,35 @@
       color: #e5e7eb;
     }
 
+    /* HEADER */
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 20px;
+      padding: 10px 20px;
       background-color: #020617;
       position: relative;
     }
 
-    header h1 {
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-area svg {
+      height: 34px;
+      width: auto;
+    }
+
+    .brand-name {
+      font-size: 20px;
+      font-weight: 600;
       margin: 0;
-      font-size: 22px;
     }
 
     .menu-btn {
-      font-size: 22px;
+      font-size: 24px;
       cursor: pointer;
       background: none;
       border: none;
@@ -46,12 +59,11 @@
       flex-direction: column;
       position: absolute;
       right: 20px;
-      top: 60px;
+      top: 55px;
       background: #020617;
       padding: 15px;
       border-radius: 8px;
       min-width: 180px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
     }
 
     .menu a {
@@ -65,45 +77,42 @@
       color: #38bdf8;
     }
 
-    .hero {
-      padding: 60px 20px 40px 20px;
-      text-align: center;
-      background: linear-gradient(to bottom, #0f172a, #111827);
-    }
-
-    .hero h2 {
-      font-size: 34px;
-      margin-bottom: 15px;
-    }
-
-    .hero p {
-      font-size: 16px;
-      max-width: 700px;
-      margin: auto;
-      opacity: 0.9;
-    }
-
+    /* HERO */
     section {
-      padding: 40px 20px;
+      padding: 50px 20px;
       max-width: 1000px;
       margin: auto;
     }
 
-    h2.section-title {
+    .hero {
       text-align: center;
-      font-size: 28px;
-      margin-bottom: 30px;
+      padding-top: 40px;
+      padding-bottom: 40px;
     }
 
+    .hero h2 {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      font-size: 15px;
+      opacity: 0.85;
+      max-width: 650px;
+      margin: auto;
+    }
+
+    /* CARDS */
     .cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 25px;
+      margin-top: 30px;
     }
 
     .card {
       background-color: #020617;
-      padding: 25px;
+      padding: 22px;
       border-radius: 10px;
       transition: transform 0.2s ease;
     }
@@ -123,17 +132,12 @@
       font-weight: bold;
     }
 
-    .btn:hover {
-      opacity: 0.9;
-    }
-
     footer {
       text-align: center;
       padding: 20px;
       font-size: 13px;
       background-color: #020617;
       opacity: 0.8;
-      margin-top: 40px;
     }
   </style>
 </head>
@@ -141,7 +145,50 @@
 <body>
 
 <header>
-  <h1>CupX</h1>
+  <div class="logo-area">
+
+    <!-- SVG Logo (Scaled Properly) -->
+    <svg viewBox="0 0 820 420" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gradC" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2563EB"/>
+          <stop offset="100%" stop-color="#22C55E"/>
+        </linearGradient>
+
+        <linearGradient id="gradXText" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#F97316"/>
+          <stop offset="100%" stop-color="#EF4444"/>
+        </linearGradient>
+      </defs>
+
+      <path d="M310 100 A130 130 0 1 0 310 320"
+            stroke="url(#gradC)"
+            stroke-width="55"
+            fill="none"
+            stroke-linecap="round"/>
+
+      <path d="M191 165 L281 255"
+            stroke="url(#gradXText)"
+            stroke-width="55"
+            stroke-linecap="round"/>
+
+      <path d="M281 165 L191 255"
+            stroke="url(#gradXText)"
+            stroke-width="55"
+            stroke-linecap="round"/>
+
+      <text x="338" y="250"
+            font-family="Poppins, Arial, sans-serif"
+            font-size="120"
+            font-weight="700"
+            fill="url(#gradXText)">
+        CARP
+      </text>
+    </svg>
+
+    <h1 class="brand-name">CupX</h1>
+  </div>
+
   <button class="menu-btn" onclick="toggleMenu()">☰</button>
 
   <div class="menu" id="menu">
@@ -155,20 +202,20 @@
 <section class="hero">
   <h2>CupX Corporation – Academic & Software Projects</h2>
   <p>
-    A student-led initiative building real academic systems and practical software tools
-    through structured, hands-on implementation.
+    A student-led initiative building real academic systems and practical
+    software tools through hands-on implementation.
   </p>
 </section>
 
 <section>
-  <h2 class="section-title">Academic Projects</h2>
+  <h2>Academic Projects</h2>
 
   <div class="cards">
     <div class="card">
       <h3>KMCLU Library Management System</h3>
       <p>
-        A live academic library platform featuring searchable book records,
-        department categorization, and structured database management.
+        A live academic library system featuring structured book records,
+        department categorization, and searchable database integration.
       </p>
       <a href="https://library.kmclu.cupx.in" class="btn">Visit Live System</a>
     </div>
