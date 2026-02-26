@@ -13,12 +13,18 @@ body {
   color: #e5e7eb;
 }
 
+/* Header (same as tools page) */
 header {
-  padding: 16px 20px;
-  background: #020617;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 16px 20px;
+  background-color: #020617;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 22px;
 }
 
 header a {
@@ -27,10 +33,14 @@ header a {
   font-size: 14px;
 }
 
+header a:hover {
+  opacity: 0.9;
+}
+
 main {
-  max-width: 750px;
+  max-width: 1000px;
   margin: auto;
-  padding: 50px 20px;
+  padding: 60px 20px;
 }
 
 .box {
@@ -39,9 +49,11 @@ main {
   border-radius: 14px;
 }
 
-h1 {
+h2 {
   text-align: center;
   margin-top: 0;
+  margin-bottom: 25px;
+  font-size: 32px;
 }
 
 .prompt {
@@ -144,7 +156,7 @@ footer {
   text-align: center;
   padding: 20px;
   font-size: 13px;
-  background: #020617;
+  background-color: #020617;
   opacity: 0.8;
   margin-top: 40px;
 }
@@ -154,14 +166,14 @@ footer {
 <body>
 
 <header>
-  <strong>CupX JSON Builder</strong>
-  <a href="/tools/">← Back to Home</a>
+  <h1>CupX JSON Builder</h1>
+  <a href="/tools/">← Back to Tools</a>
 </header>
 
 <main>
   <div class="box">
 
-    <h1>Guided JSON Builder</h1>
+    <h2>Guided JSON Builder</h2>
 
     <div class="prompt" id="promptText">
       Enter number of fields/columns:
