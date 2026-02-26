@@ -11,19 +11,51 @@
   <style>
     body {
       margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      flex-direction: column;
       min-height: 100vh;
+    }
+
+    /* Header (same as Tools page) */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background-color: #020617;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    header a {
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    header a:hover {
+      opacity: 0.9;
+    }
+
+    main {
+      flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #0f172a;
-      font-family: Arial, Helvetica, sans-serif;
+      padding: 60px 20px;
     }
 
     .calculator {
       width: 100%;
       max-width: 320px;
       background: #020617;
-      padding: 16px;
+      padding: 20px;
       border-radius: 10px;
       box-shadow: 0 15px 40px rgba(0,0,0,0.5);
     }
@@ -56,11 +88,11 @@
       cursor: pointer;
       background: #1e293b;
       color: #ffffff;
+      transition: opacity 0.2s ease;
     }
 
     button:hover {
-      background: #38bdf8;
-      color: #020617;
+      opacity: 0.9;
     }
 
     .operator {
@@ -86,62 +118,60 @@
       grid-column: span 2;
     }
 
-    .title {
+    footer {
       text-align: center;
-      color: #e5e7eb;
-      margin-bottom: 12px;
-      font-size: 18px;
-    }
-
-    .home {
-      text-align: center;
-      margin-top: 12px;
-    }
-
-    .home a {
-      color: #38bdf8;
-      text-decoration: none;
-      font-size: 14px;
+      padding: 20px;
+      font-size: 13px;
+      background-color: #020617;
+      opacity: 0.8;
+      margin-top: auto;
     }
   </style>
 </head>
 
 <body>
 
-<div class="calculator">
-  <div class="title">CupX Calculator</div>
+<header>
+  <h1>CupX Calculator</h1>
+  <a href="/tools/">← Back to Tools</a>
+</header>
 
-  <input type="text" id="display" class="display" readonly>
+<main>
+  <div class="calculator">
 
-  <div class="buttons">
-    <button class="clear wide" onclick="clearDisplay()">C</button>
-    <button class="back" onclick="backspace()">⌫</button>
-    <button class="operator" onclick="add('/')">÷</button>
+    <input type="text" id="display" class="display" readonly>
 
-    <button onclick="add('7')">7</button>
-    <button onclick="add('8')">8</button>
-    <button onclick="add('9')">9</button>
-    <button class="operator" onclick="add('*')">×</button>
+    <div class="buttons">
+      <button class="clear wide" onclick="clearDisplay()">C</button>
+      <button class="back" onclick="backspace()">⌫</button>
+      <button class="operator" onclick="add('/')">÷</button>
 
-    <button onclick="add('4')">4</button>
-    <button onclick="add('5')">5</button>
-    <button onclick="add('6')">6</button>
-    <button class="operator" onclick="add('-')">−</button>
+      <button onclick="add('7')">7</button>
+      <button onclick="add('8')">8</button>
+      <button onclick="add('9')">9</button>
+      <button class="operator" onclick="add('*')">×</button>
 
-    <button onclick="add('1')">1</button>
-    <button onclick="add('2')">2</button>
-    <button onclick="add('3')">3</button>
-    <button class="operator" onclick="add('+')">+</button>
+      <button onclick="add('4')">4</button>
+      <button onclick="add('5')">5</button>
+      <button onclick="add('6')">6</button>
+      <button class="operator" onclick="add('-')">−</button>
 
-    <button class="wide" onclick="add('0')">0</button>
-    <button onclick="add('.')">.</button>
-    <button class="equal" onclick="calculate()">=</button>
+      <button onclick="add('1')">1</button>
+      <button onclick="add('2')">2</button>
+      <button onclick="add('3')">3</button>
+      <button class="operator" onclick="add('+')">+</button>
+
+      <button class="wide" onclick="add('0')">0</button>
+      <button onclick="add('.')">.</button>
+      <button class="equal" onclick="calculate()">=</button>
+    </div>
+
   </div>
+</main>
 
-  <div class="home">
-    <a href="/tools/">← Back to Home</a>
-  </div>
-</div>
+<footer>
+  © 2026 CupX Corporation · All rights reserved
+</footer>
 
 <script>
   const display = document.getElementById("display");
