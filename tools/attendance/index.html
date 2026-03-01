@@ -6,9 +6,14 @@
 
 <title>Attendance System | CupX Corporation</title>
 
-<meta name="description" content="Simple attendance record system built by CupX Corporation for learning and demonstration." />
+<meta name="description" content="Simple attendance record system built by CupX Corporation." />
 
+<!-- XLSX -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
 <style>
 body {
@@ -16,25 +21,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   background-color: #0f172a;
   color: #e5e7eb;
-}
-
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  background-color: #020617;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 22px;
-}
-
-header a {
-  color: #38bdf8;
-  text-decoration: none;
-  font-size: 14px;
 }
 
 main {
@@ -46,30 +32,29 @@ main {
 h2 {
   text-align: center;
   font-size: 32px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
-p.subtitle {
+.subtitle {
   text-align: center;
-  opacity: 0.85;
   margin-bottom: 40px;
+  opacity: 0.8;
 }
 
 .form-box {
   background-color: #020617;
   padding: 25px;
   border-radius: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
 input, select, button {
   width: 100%;
   padding: 10px;
   margin-bottom: 12px;
-  border-radius: 5px;
+  border-radius: 6px;
   border: none;
   font-size: 14px;
-  box-sizing: border-box;
 }
 
 button {
@@ -104,37 +89,15 @@ table {
 th, td {
   padding: 10px;
   border-bottom: 1px solid #1e293b;
-  text-align: left;
   font-size: 14px;
 }
 
-.present {
-  color: #22c55e;
-  font-weight: bold;
-}
-
-.absent {
-  color: #ef4444;
-  font-weight: bold;
-}
-
-footer {
-  text-align: center;
-  padding: 20px;
-  font-size: 13px;
-  background-color: #020617;
-  opacity: 0.8;
-  margin-top: 40px;
-}
+.present { color: #22c55e; font-weight: bold; }
+.absent { color: #ef4444; font-weight: bold; }
 </style>
 </head>
 
 <body>
-
-<header>
-  <h1>Attendance System</h1>
-  <a href="/tools/">← Back to Tools</a>
-</header>
 
 <main>
 
@@ -142,6 +105,7 @@ footer {
 <p class="subtitle">Simple attendance record tool by CupX Corporation</p>
 
 <div class="form-box">
+  <input type="text" id="sessionName" placeholder="Attendance Session Name (e.g. B.Tech CSE Section A)">
   <input type="text" id="name" placeholder="Student Name">
   <input type="text" id="roll" placeholder="Roll Number">
 
@@ -154,7 +118,7 @@ footer {
 </div>
 
 <div class="action-row">
-  <button onclick="exportCSV()">Export Excel</button>
+  <button onclick="exportExcel()">Export Excel</button>
   <button onclick="exportPDF()">Export PDF</button>
   <button onclick="clearAll()">Clear All</button>
 </div>
@@ -162,6 +126,7 @@ footer {
 <table>
   <thead>
     <tr>
+      <th>Sr. No</th>
       <th>Name</th>
       <th>Roll</th>
       <th>Status</th>
@@ -173,25 +138,21 @@ footer {
 
 </main>
 
-<footer>
-  © 2026 CupX Corporation · All rights reserved
-</footer>
-
 <script>
+
 let records = JSON.parse(localStorage.getItem("attendance")) || [];
 
 function render() {
   const table = document.getElementById("records");
   table.innerHTML = "";
 
-  records.forEach(r => {
+  records.forEach((r, index) => {
     table.innerHTML += `
       <tr>
+        <td>${index + 1}</td>
         <td>${escapeHTML(r.name)}</td>
         <td>${escapeHTML(r.roll)}</td>
-        <td class="${r.status === 'Present' ? 'present' : 'absent'}">
-          ${r.status}
-        </td>
+        <td class="${r.status === 'Present' ? 'present' : 'absent'}">${r.status}</td>
         <td>${r.date}</td>
       </tr>
     `;
@@ -199,57 +160,104 @@ function render() {
 }
 
 function addAttendance() {
-  const name = document.getElementById("name").value.trim();
-  const roll = document.getElementById("roll").value.trim();
-  const status = document.getElementById("status").value;
+  const name = nameInput.value.trim();
+  const roll = rollInput.value.trim();
+  const status = statusInput.value;
 
   if (!name || !roll) {
     alert("Please fill all fields");
     return;
   }
 
-  const record = {
+  records.push({
     name,
     roll,
     status,
     date: new Date().toLocaleDateString()
-  };
+  });
 
-  records.push(record);
   localStorage.setItem("attendance", JSON.stringify(records));
 
-  document.getElementById("name").value = "";
-  document.getElementById("roll").value = "";
+  nameInput.value = "";
+  rollInput.value = "";
+  nameInput.focus();
 
   render();
 }
 
 function clearAll() {
-  if (confirm("Are you sure you want to delete all records?")) {
+  if (confirm("Delete all records?")) {
     records = [];
     localStorage.removeItem("attendance");
     render();
   }
 }
 
-function exportCSV() {
+/* ENTER KEY FLOW */
+const nameInput = document.getElementById("name");
+const rollInput = document.getElementById("roll");
+const statusInput = document.getElementById("status");
+
+nameInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    rollInput.focus();
+  }
+});
+
+rollInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    statusInput.focus();
+    statusInput.click();
+  }
+});
+
+statusInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    addAttendance();
+  }
+});
+
+/* EXCEL EXPORT */
+function exportExcel() {
   if (records.length === 0) {
     alert("No data to export.");
     return;
   }
 
-  let csv = "Name,Roll,Status,Date\n";
-  records.forEach(r => {
-    csv += `"${r.name}","${r.roll}","${r.status}","${r.date}"\n`;
+  const sessionName = document.getElementById("sessionName").value || "Attendance Record";
+
+  const wsData = [];
+
+  wsData.push(["CupX Attendance System"]);
+  wsData.push([sessionName]);
+  wsData.push(["Sr No", "Name", "Roll No", "Status", "Date"]);
+
+  records.forEach((r, i) => {
+    wsData.push([i+1, r.name, r.roll, r.status, r.date]);
   });
 
-  const blob = new Blob([csv], { type: "text/csv" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "attendance_records.csv";
-  link.click();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  ws["!merges"] = [
+    { s:{r:0,c:0}, e:{r:0,c:4} },
+    { s:{r:1,c:0}, e:{r:1,c:4} }
+  ];
+
+  /* Auto column width ignoring first 2 rows */
+  const colWidths = [5, 15, 12, 10, 12];
+
+  ws["!cols"] = colWidths.map(w => ({ wch: w }));
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Attendance");
+
+  XLSX.writeFile(wb, "attendance_records.xlsx");
 }
 
+/* PDF EXPORT */
 function exportPDF() {
   if (records.length === 0) {
     alert("No data to export.");
@@ -259,10 +267,28 @@ function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  let y = 10;
-  records.forEach(r => {
-    doc.text(`${r.name} | ${r.roll} | ${r.status} | ${r.date}`, 10, y);
-    y += 8;
+  const sessionName = document.getElementById("sessionName").value || "Attendance Record";
+
+  doc.setFontSize(16);
+  doc.text("CupX Attendance System", 14, 15);
+
+  doc.setFontSize(12);
+  doc.text(sessionName, 14, 23);
+
+  const tableData = records.map((r, i) => [
+    i+1,
+    r.name,
+    r.roll,
+    r.status,
+    r.date
+  ]);
+
+  doc.autoTable({
+    head: [["Sr No","Name","Roll","Status","Date"]],
+    body: tableData,
+    startY: 30,
+    theme: "grid",
+    styles: { fontSize: 10 }
   });
 
   doc.save("attendance_records.pdf");
@@ -277,6 +303,7 @@ function escapeHTML(str) {
 }
 
 render();
+
 </script>
 
 </body>
