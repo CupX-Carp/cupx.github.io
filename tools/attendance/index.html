@@ -254,7 +254,7 @@ function exportExcel() {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Attendance");
 
-  XLSX.writeFile(wb, "attendance_records.xlsx");
+  XLSX.writeFile(wb, "cupx-attendance.xlsx");
 }
 
 /* PDF EXPORT */
@@ -269,14 +269,39 @@ function exportPDF() {
 
   const sessionName = document.getElementById("sessionName").value || "Attendance Record";
 
-  doc.setFontSize(16);
-  doc.text("CupX Attendance System", 14, 15);
+  const primaryBlue = [56, 189, 248]; // CupX blue
+  const darkBlue = [2, 6, 23];
 
-  doc.setFontSize(12);
-  doc.text(sessionName, 14, 23);
+  const totalPagesExp = "{total_pages_count_string}";
+
+  const drawHeader = (data) => {
+    doc.setFont("helvetica", "bold");
+
+    // Main Title
+    doc.setFontSize(18);
+    doc.setTextColor(...primaryBlue);
+    doc.text("CupX Attendance System", doc.internal.pageSize.getWidth() / 2, 15, {
+      align: "center"
+    });
+
+    // Session Name
+    doc.setFontSize(13);
+    doc.text(sessionName, doc.internal.pageSize.getWidth() / 2, 23, {
+      align: "center"
+    });
+
+    // Page number
+    doc.setFontSize(9);
+    doc.setTextColor(120);
+    doc.text(
+      "Page " + doc.internal.getNumberOfPages(),
+      doc.internal.pageSize.getWidth() - 20,
+      doc.internal.pageSize.getHeight() - 10
+    );
+  };
 
   const tableData = records.map((r, i) => [
-    i+1,
+    i + 1,
     r.name,
     r.roll,
     r.status,
@@ -284,16 +309,44 @@ function exportPDF() {
   ]);
 
   doc.autoTable({
-    head: [["Sr No","Name","Roll","Status","Date"]],
+    head: [["Sr No", "Name", "Roll", "Status", "Date"]],
     body: tableData,
     startY: 30,
     theme: "grid",
-    styles: { fontSize: 10 }
+    styles: {
+      fontSize: 10,
+      cellPadding: 3
+    },
+    headStyles: {
+      fillColor: primaryBlue,
+      textColor: 255,
+      halign: "center",
+      fontStyle: "bold"
+    },
+    columnStyles: {
+      0: { halign: "center" },
+      2: { halign: "center" },
+      3: { halign: "center" },
+      4: { halign: "center" }
+    },
+    didParseCell: function (data) {
+      if (data.section === "body" && data.column.index === 3) {
+        if (data.cell.raw === "Present") {
+          data.cell.styles.textColor = [34, 197, 94]; // green
+          data.cell.styles.fontStyle = "bold";
+        } else {
+          data.cell.styles.textColor = [239, 68, 68]; // red
+          data.cell.styles.fontStyle = "bold";
+        }
+      }
+    },
+    didDrawPage: function (data) {
+      drawHeader(data);
+    }
   });
 
-  doc.save("attendance_records.pdf");
+  doc.save("cupx-attendance.pdf");
 }
-
 function escapeHTML(str) {
   return String(str)
     .replace(/&/g,"&amp;")
