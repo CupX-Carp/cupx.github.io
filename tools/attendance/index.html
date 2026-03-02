@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>CupX Attendance | CupX Corporation</title>
-
 <meta name="description" content="CupX Attendance system built by CupX Corporation." />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -38,12 +37,12 @@ header a{
   font-size:14px;
 }
 
-/* MAIN WRAPPER */
+/* MAIN */
 main{
   flex:1;
+  padding:60px 16px;
   display:flex;
   justify-content:center;
-  padding:60px 20px;
 }
 
 .container{
@@ -54,7 +53,7 @@ main{
 /* TITLE */
 .section-title{
   text-align:center;
-  font-size:30px;
+  font-size:28px;
   margin-bottom:6px;
 }
 .subtitle{
@@ -66,7 +65,7 @@ main{
 /* FORM */
 .form-box{
   background:#020617;
-  padding:25px;
+  padding:20px;
   border-radius:12px;
   margin-bottom:25px;
   box-shadow:0 15px 40px rgba(0,0,0,0.5);
@@ -95,25 +94,28 @@ button{
 }
 button:hover{opacity:0.9;}
 
-/* ACTION BUTTON ROW */
 .action-row{
   display:flex;
-  gap:15px;
-  margin-bottom:25px;
+  gap:12px;
+  margin-bottom:20px;
+  flex-wrap:wrap;
 }
 .action-row button{
-  flex:1;
+  flex:1 1 30%;
+  min-width:120px;
 }
 
-/* TABLE */
-.table-wrapper{
-  background:#020617;
+/* TABLE WRAPPER FOR MOBILE SCROLL */
+.table-scroll{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
   border-radius:12px;
-  overflow:hidden;
+  background:#020617;
 }
 
 table{
   width:100%;
+  min-width:750px; /* forces horizontal scroll on mobile */
   border-collapse:collapse;
 }
 
@@ -126,7 +128,7 @@ th,td{
   padding:14px;
   border-bottom:1px solid #1e293b;
   text-align:center;
-  font-size:14px;
+  white-space:nowrap;
 }
 
 .present{color:#22c55e;font-weight:bold;}
@@ -174,7 +176,7 @@ footer{
     <option value="Present">Present</option>
     <option value="Absent">Absent</option>
   </select>
-  <button id="addBtn">Add Record</button>
+  <button onclick="addAttendance()">Add Record</button>
 </div>
 
 <div class="action-row">
@@ -183,7 +185,7 @@ footer{
   <button onclick="clearAll()">Clear All</button>
 </div>
 
-<div class="table-wrapper">
+<div class="table-scroll">
 <table>
 <thead>
 <tr>
@@ -213,7 +215,7 @@ const nameInput=document.getElementById("name");
 const rollInput=document.getElementById("roll");
 const statusInput=document.getElementById("status");
 
-/* Enter Flow */
+/* ENTER FLOW */
 nameInput.addEventListener("keydown",e=>{
   if(e.key==="Enter"){e.preventDefault();rollInput.focus();}
 });
@@ -254,7 +256,6 @@ function addAttendance(){
   nameInput.focus();
   render();
 }
-document.getElementById("addBtn").onclick=addAttendance;
 
 function deleteOne(i){
   records.splice(i,1);
@@ -272,7 +273,6 @@ function clearAll(){
 /* PDF */
 function exportPDF(){
   if(records.length===0)return alert("No data");
-
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF();
   const sessionName=document.getElementById("sessionName").value||"Attendance Record";
@@ -303,7 +303,7 @@ function exportPDF(){
   doc.save("attendance_records.pdf");
 }
 
-/* Excel same */
+/* Excel */
 function exportExcel(){
   if(records.length===0)return alert("No data");
   const sessionName=document.getElementById("sessionName").value||"Attendance Record";
@@ -323,6 +323,7 @@ function exportExcel(){
   ws["!cols"]=[
     {wch:6},{wch:20},{wch:12},{wch:12},{wch:14}
   ];
+
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,"Attendance");
   XLSX.writeFile(wb,"attendance_records.xlsx");
