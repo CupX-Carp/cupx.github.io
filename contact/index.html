@@ -10,95 +10,84 @@
 <meta name="description" content="Contact CupX Corporation for queries, support, or business opportunities.">
 
 <style>
-body {
-margin: 0;
-font-family: Arial, Helvetica, sans-serif;
-background-color: #0f172a;
-color: #e5e7eb;
+body{
+margin:0;
+font-family:Arial,Helvetica,sans-serif;
+background:#0f172a;
+color:#e5e7eb;
 }
 
-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 16px 20px;
-background-color: #020617;
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:16px 20px;
+background:#020617;
 }
 
-header h1 {
-margin: 0;
-font-size: 22px;
+header h1{margin:0;font-size:22px;}
+
+header a{
+color:#38bdf8;
+text-decoration:none;
+font-size:14px;
 }
 
-header a {
-color: #38bdf8;
-text-decoration: none;
-font-size: 14px;
+header a:hover{opacity:.9;}
+
+main{
+max-width:1000px;
+margin:auto;
+padding:60px 20px;
 }
 
-header a:hover {
-opacity: 0.9;
+h1{text-align:center;margin-bottom:10px;}
+
+.subtitle{
+text-align:center;
+opacity:.85;
+margin-bottom:40px;
 }
 
-main {
-max-width: 1000px;
-margin: auto;
-padding: 60px 20px;
+.contact-grid{
+display:grid;
+grid-template-columns:1fr;
+gap:30px;
 }
 
-h1 {
-text-align: center;
-margin-bottom: 10px;
+.box{
+background:#020617;
+padding:25px;
+border-radius:10px;
 }
 
-p.subtitle {
-text-align: center;
-opacity: 0.85;
-margin-bottom: 40px;
+.box h2{
+margin-top:0;
+margin-bottom:15px;
+font-size:18px;
 }
 
-.contact-grid {
-display: grid;
-grid-template-columns: 1fr;
-gap: 30px;
-}
+.info p{margin:8px 0;font-size:14px;}
 
-.box {
-background-color: #020617;
-padding: 25px;
-border-radius: 10px;
-}
-
-.box h2 {
-margin-top: 0;
-margin-bottom: 15px;
-font-size: 18px;
-}
-
-.info p {
-margin: 8px 0;
-font-size: 14px;
-}
-
-.info a {
-color: #38bdf8;
-text-decoration: none;
+.info a{
+color:#38bdf8;
+text-decoration:none;
 }
 
 form input,
-form textarea {
-width: 100%;
-padding: 10px;
-margin-bottom: 12px;
-border-radius: 5px;
-border: none;
-font-size: 14px;
-box-sizing: border-box;
+form textarea{
+width:100%;
+padding:10px;
+margin-bottom:12px;
+border-radius:5px;
+border:none;
+font-size:14px;
+box-sizing:border-box;
 }
 
-form textarea {
-resize: vertical;
-min-height: 100px;
+textarea{
+resize:vertical;
+min-height:100px;
 }
 
 .verify-row{
@@ -116,48 +105,41 @@ margin-bottom:0;
 white-space:nowrap;
 }
 
-form button {
-background: #38bdf8;
-color: #020617;
-border: none;
-padding: 8px 14px;
-border-radius: 5px;
-font-size: 15px;
-font-weight: bold;
-cursor: pointer;
-transition: opacity 0.2s ease;
+button{
+background:#38bdf8;
+color:#020617;
+border:none;
+padding:8px 14px;
+border-radius:5px;
+font-size:15px;
+font-weight:bold;
+cursor:pointer;
+transition:opacity .2s;
 }
 
-form button:hover {
-opacity: 0.9;
+button:hover{opacity:.9;}
+
+.note{
+margin-top:10px;
+font-size:13px;
+min-height:18px;
 }
 
-.note {
-margin-top: 10px;
-font-size: 13px;
-min-height: 18px;
+.success{color:#22c55e;}
+.error{color:#ef4444;}
+
+footer{
+text-align:center;
+padding:20px;
+font-size:13px;
+background:#020617;
+opacity:.8;
+margin-top:40px;
 }
 
-.success {
-color: #22c55e;
-}
-
-.error {
-color: #ef4444;
-}
-
-footer {
-text-align: center;
-padding: 20px;
-font-size: 13px;
-background-color: #020617;
-opacity: 0.8;
-margin-top: 40px;
-}
-
-@media (min-width: 768px) {
-.contact-grid {
-grid-template-columns: 1fr 1fr;
+@media(min-width:768px){
+.contact-grid{
+grid-template-columns:1fr 1fr;
 }
 }
 </style>
@@ -172,7 +154,9 @@ grid-template-columns: 1fr 1fr;
 </header>
 
 <main>
+
 <h1>Contact Us</h1>
+
 <p class="subtitle">
 Have a question, feedback, or business inquiry? Reach out to CupX.
 </p>
@@ -215,8 +199,8 @@ Have a question, feedback, or business inquiry? Reach out to CupX.
 </form>
 
 <p class="note" id="formStatus"></p>
-</div>
 
+</div>
 </div>
 </main>
 
@@ -226,14 +210,14 @@ Have a question, feedback, or business inquiry? Reach out to CupX.
 
 <script>
 
-const form = document.getElementById("contactForm");
-const status = document.getElementById("formStatus");
-const submitBtn = document.getElementById("submitBtn");
-const verifyBtn = document.getElementById("verifyBtn");
+const form=document.getElementById("contactForm");
+const status=document.getElementById("formStatus");
+const submitBtn=document.getElementById("submitBtn");
+const verifyBtn=document.getElementById("verifyBtn");
 
 let verified=false;
 
-verifyBtn.addEventListener("click", async () => {
+verifyBtn.addEventListener("click",async()=>{
 
 const email=document.getElementById("email").value;
 
@@ -264,18 +248,25 @@ document.getElementById("otpRow").style.display="flex";
 
 try{
 
-await fetch("https://cupx-otp.vercel.app/api/send-otp",{
+const res=await fetch("https://cupx-otp.vercel.app/api/send-otp",{
 method:"POST",
 headers:{ "Content-Type":"application/json"},
 body:JSON.stringify({email})
 });
 
+const data=await res.json();
+
+if(data.success){
 status.innerText="OTP sent to email.";
-status.className="note";
-
-}catch{
-
+status.className="note success";
+}else{
 status.innerText="Failed to send OTP.";
+status.className="note error";
+}
+
+}catch(err){
+
+status.innerText="Network error while sending OTP.";
 status.className="note error";
 
 }
@@ -286,6 +277,8 @@ document.getElementById("confirmOtp").addEventListener("click",async()=>{
 
 const email=document.getElementById("email").value;
 const otp=document.getElementById("otpInput").value;
+
+try{
 
 const res=await fetch("https://cupx-otp.vercel.app/api/send-otp",{
 method:"POST",
@@ -310,9 +303,16 @@ status.className="note error";
 
 }
 
+}catch{
+
+status.innerText="Verification failed.";
+status.className="note error";
+
+}
+
 });
 
-form.addEventListener("submit", async function(e){
+form.addEventListener("submit",async function(e){
 
 e.preventDefault();
 
@@ -365,3 +365,4 @@ submitBtn.disabled=false;
 
 </body>
 </html>
+
