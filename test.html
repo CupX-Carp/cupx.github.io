@@ -1,117 +1,877 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Sign Up | CupX Corporation</title>
-
-  <meta name="description" content="Sign up for CupX Corporation. Page currently under development.">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LLM Council | CupX Corporation</title>
+  <meta name="description" content="Multi-model AI Council — ask a question, get answers from multiple LLMs, peer reviewed and synthesized by a Chairman." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
   <style>
+    :root {
+      --bg: #080c14;
+      --surface: #0d1526;
+      --surface2: #111d35;
+      --border: rgba(56, 189, 248, 0.15);
+      --accent: #38bdf8;
+      --accent2: #818cf8;
+      --accent3: #34d399;
+      --warn: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --llama: #f97316;
+      --gemma: #34d399;
+      --mixtral: #a78bfa;
+      --chairman: #38bdf8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background-color: #0f172a;
-      color: #e5e7eb;
-      display: flex;
-      flex-direction: column;
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    /* Header (same as tools) */
-    header {
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(56,189,248,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56,189,248,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Top nav */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8,12,20,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      padding: 16px 20px;
-      background-color: #020617;
+      padding: 14px 24px;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 22px;
-    }
-
-    header a {
-      color: #38bdf8;
+    .nav-brand {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--accent);
       text-decoration: none;
-      font-size: 14px;
     }
 
-    header a:hover {
-      opacity: 0.9;
-    }
+    .nav-brand span { color: var(--text); }
 
+    .nav-back {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .nav-back:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* Main layout */
     main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 60px 20px;
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* Header */
+    .page-header {
       text-align: center;
+      margin-bottom: 48px;
     }
 
-    .card {
-      background-color: #020617;
-      padding: 40px;
-      border-radius: 12px;
+    .page-header .badge {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      background: rgba(56,189,248,0.05);
+    }
+
+    .page-header h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .page-header h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .page-header p {
+      font-size: 15px;
+      color: var(--muted);
       max-width: 500px;
-      width: 100%;
-    }
-
-    .card h2 {
-      margin-top: 0;
-      font-size: 28px;
-      margin-bottom: 15px;
-    }
-
-    .card p {
-      opacity: 0.85;
+      margin: 0 auto;
       line-height: 1.6;
     }
 
-    .badge {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 8px 14px;
-      border-radius: 6px;
-      background-color: #334155;
-      font-size: 13px;
-      color: #94a3b8;
+    /* API Keys section */
+    .keys-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 28px;
     }
 
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 13px;
-      background-color: #020617;
-      opacity: 0.8;
+    .keys-section h2 {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
+
+    .keys-section h2::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--warn);
+    }
+
+    .keys-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .keys-grid { grid-template-columns: 1fr; }
+    }
+
+    .key-field label {
+      display: block;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .key-field input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .key-field input:focus { border-color: var(--accent); }
+    .key-field input::placeholder { color: var(--muted); }
+
+    .key-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    .key-hint a { color: var(--accent); text-decoration: none; }
+    .key-hint a:hover { text-decoration: underline; }
+
+    /* Query input */
+    .query-section {
+      margin-bottom: 32px;
+    }
+
+    .query-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .query-box:focus-within { border-color: var(--accent); }
+
+    textarea#query {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      resize: none;
+      line-height: 1.6;
+      min-height: 80px;
+    }
+
+    textarea#query::placeholder { color: var(--muted); }
+
+    .query-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .council-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    .pill-llama { color: var(--llama); border-color: var(--llama); background: rgba(249,115,22,0.08); }
+    .pill-gemma { color: var(--gemma); border-color: var(--gemma); background: rgba(52,211,153,0.08); }
+    .pill-mixtral { color: var(--mixtral); border-color: var(--mixtral); background: rgba(167,139,250,0.08); }
+    .pill-chairman { color: var(--chairman); border-color: var(--chairman); background: rgba(56,189,248,0.08); }
+
+    #submit-btn {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      padding: 10px 28px;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    #submit-btn:hover { background: #7dd3fc; transform: translateY(-1px); }
+    #submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* Progress */
+    #progress {
+      display: none;
+      margin-bottom: 28px;
+    }
+
+    .progress-steps {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .step {
+      flex: 1;
+      padding: 12px 8px;
+      text-align: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .step:last-child { border-right: none; }
+
+    .step.active {
+      color: var(--accent);
+      background: rgba(56,189,248,0.08);
+    }
+
+    .step.done {
+      color: var(--accent3);
+      background: rgba(52,211,153,0.06);
+    }
+
+    .step.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent);
+      animation: pulse-bar 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse-bar {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* Results */
+    #results { display: none; }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .results-header h2 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .divider {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Council member cards */
+    .member-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active-llama { color: var(--llama); border-color: var(--llama); background: rgba(249,115,22,0.08); }
+    .tab-btn.active-gemma { color: var(--gemma); border-color: var(--gemma); background: rgba(52,211,153,0.08); }
+    .tab-btn.active-mixtral { color: var(--mixtral); border-color: var(--mixtral); background: rgba(167,139,250,0.08); }
+
+    .member-panel {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 8px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .member-panel.visible { display: block; }
+
+    .member-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .member-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .member-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .member-model {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    .member-content {
+      font-size: 14px;
+      line-height: 1.8;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+    }
+
+    /* Reviews section */
+    .reviews-grid {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .review-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+    }
+
+    .review-card-header {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .review-card-content {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #94a3b8;
+      white-space: pre-wrap;
+    }
+
+    /* Chairman card */
+    .chairman-card {
+      background: linear-gradient(135deg, rgba(56,189,248,0.07), rgba(129,140,248,0.05));
+      border: 1px solid rgba(56,189,248,0.3);
+      border-radius: 16px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chairman-card::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(56,189,248,0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    .chairman-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .chairman-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(56,189,248,0.15);
+      border: 1px solid rgba(56,189,248,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .chairman-label-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .chairman-model-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    .chairman-response {
+      font-size: 15px;
+      line-height: 1.9;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    /* Error box */
+    .error-box {
+      display: none;
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 8px;
+      padding: 14px 18px;
+      color: #fca5a5;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      margin-bottom: 20px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   </style>
 </head>
-
 <body>
 
-<header>
-  <h1>CupX Sign Up</h1>
-  <a href="/">← Back to Home</a>
-</header>
+<nav>
+  <a class="nav-brand" href="/">Cup<span>X</span></a>
+  <a class="nav-back" href="/">← Home</a>
+</nav>
 
 <main>
-  <div class="card">
-    <h2>Sign Up Page</h2>
-    <p>
-      This feature is currently under development.
-      Account creation will be available in a future update.
-    </p>
-    <div class="badge">Under Development</div>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="badge">EXPERIMENTAL TOOL</div>
+    <h1>LLM <em>Council</em></h1>
+    <p>Inspired by Andrej Karpathy's project — your question goes to three AI models, they review each other's answers, and a Chairman synthesizes the best response.</p>
   </div>
+
+  <!-- API Keys -->
+  <div class="keys-section">
+    <h2>Your API Keys</h2>
+    <div class="keys-grid">
+      <div class="key-field">
+        <label>GROQ API KEY (Council Members)</label>
+        <input type="password" id="groq-key" placeholder="gsk_..." autocomplete="off" />
+      </div>
+      <div class="key-field">
+        <label>GOOGLE AI STUDIO KEY (Chairman)</label>
+        <input type="password" id="google-key" placeholder="AIza..." autocomplete="off" />
+      </div>
+    </div>
+    <p class="key-hint">
+      Keys are used only in your browser, never stored or sent to CupX servers. &nbsp;·&nbsp;
+      Get Groq key free at <a href="https://console.groq.com" target="_blank">console.groq.com</a>
+      &nbsp;·&nbsp;
+      Get Google key free at <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
+    </p>
+  </div>
+
+  <!-- Query -->
+  <div class="query-section">
+    <div class="query-box">
+      <textarea id="query" placeholder="Ask your hardest question… e.g. 'What is the best programming language to learn in 2025 and why?'" rows="3"></textarea>
+      <div class="query-footer">
+        <div class="council-pills">
+          <span class="pill pill-llama">LLaMA 3.3</span>
+          <span class="pill pill-gemma">Gemma 2</span>
+          <span class="pill pill-mixtral">Mixtral</span>
+          <span class="pill pill-chairman">★ Gemini Flash</span>
+        </div>
+        <button id="submit-btn" onclick="runCouncil()">Convene Council</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-box" id="error-box"></div>
+
+  <!-- Progress -->
+  <div id="progress">
+    <div class="progress-steps">
+      <div class="step" id="step1">Stage 1: First Opinions</div>
+      <div class="step" id="step2">Stage 2: Peer Review</div>
+      <div class="step" id="step3">Stage 3: Chairman</div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+
+    <!-- Stage 1 -->
+    <div class="results-header">
+      <h2>Stage 1 — First Opinions</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="member-tabs">
+      <button class="tab-btn" onclick="showTab('llama')" id="tab-llama">LLaMA 3.3</button>
+      <button class="tab-btn" onclick="showTab('gemma')" id="tab-gemma">Gemma 2</button>
+      <button class="tab-btn" onclick="showTab('mixtral')" id="tab-mixtral">Mixtral</button>
+    </div>
+
+    <div class="member-panel visible" id="panel-llama">
+      <div class="member-header">
+        <div class="member-dot" style="background:var(--llama)"></div>
+        <div class="member-name" style="color:var(--llama)">LLaMA 3.3</div>
+        <div class="member-model">llama-3.3-70b-versatile · Groq</div>
+      </div>
+      <div class="member-content" id="content-llama">Waiting…</div>
+    </div>
+
+    <div class="member-panel" id="panel-gemma">
+      <div class="member-header">
+        <div class="member-dot" style="background:var(--gemma)"></div>
+        <div class="member-name" style="color:var(--gemma)">Gemma 2</div>
+        <div class="member-model">gemma2-9b-it · Groq</div>
+      </div>
+      <div class="member-content" id="content-gemma">Waiting…</div>
+    </div>
+
+    <div class="member-panel" id="panel-mixtral">
+      <div class="member-header">
+        <div class="member-dot" style="background:var(--mixtral)"></div>
+        <div class="member-name" style="color:var(--mixtral)">Mixtral</div>
+        <div class="member-model">mixtral-8x7b-32768 · Groq</div>
+      </div>
+      <div class="member-content" id="content-mixtral">Waiting…</div>
+    </div>
+
+    <!-- Stage 2 -->
+    <div class="results-header" style="margin-top:36px">
+      <h2>Stage 2 — Peer Reviews</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="review-card-header">LLaMA 3.3 reviews the other two responses</div>
+        <div class="review-card-content" id="review-llama">Waiting…</div>
+      </div>
+      <div class="review-card">
+        <div class="review-card-header">Gemma 2 reviews the other two responses</div>
+        <div class="review-card-content" id="review-gemma">Waiting…</div>
+      </div>
+      <div class="review-card">
+        <div class="review-card-header">Mixtral reviews the other two responses</div>
+        <div class="review-card-content" id="review-mixtral">Waiting…</div>
+      </div>
+    </div>
+
+    <!-- Stage 3 -->
+    <div class="results-header">
+      <h2>Stage 3 — Chairman's Verdict</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="chairman-card">
+      <div class="chairman-label">
+        <div class="chairman-icon">★</div>
+        <div class="chairman-label-text">CHAIRMAN — FINAL ANSWER</div>
+        <div class="chairman-model-tag">gemini-2.0-flash · Google AI Studio</div>
+      </div>
+      <div class="chairman-response" id="chairman-response">Waiting for council to complete…</div>
+    </div>
+
+  </div>
+
 </main>
 
-<footer>
-  © 2026 CupX Corporation · All rights reserved
-</footer>
+<script>
+const GROQ_BASE = 'https://api.groq.com/openai/v1/chat/completions';
+const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
+const MODELS = {
+  llama: 'llama-3.3-70b-versatile',
+  gemma: 'gemma2-9b-it',
+  mixtral: 'mixtral-8x7b-32768'
+};
+
+function showError(msg) {
+  const box = document.getElementById('error-box');
+  box.style.display = 'block';
+  box.textContent = '⚠ ' + msg;
+}
+
+function clearError() {
+  document.getElementById('error-box').style.display = 'none';
+}
+
+function setStep(n) {
+  ['step1','step2','step3'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'step';
+    if (i + 1 < n) el.classList.add('done');
+    if (i + 1 === n) el.classList.add('active');
+  });
+}
+
+function showTab(name) {
+  ['llama','gemma','mixtral'].forEach(m => {
+    document.getElementById('panel-' + m).classList.remove('visible');
+    const btn = document.getElementById('tab-' + m);
+    btn.className = 'tab-btn';
+  });
+  document.getElementById('panel-' + name).classList.add('visible');
+  document.getElementById('tab-' + name).className = 'tab-btn active-' + name;
+}
+
+async function groqCall(apiKey, model, messages) {
+  const resp = await fetch(GROQ_BASE, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + apiKey
+    },
+    body: JSON.stringify({ model, messages, max_tokens: 600, temperature: 0.7 })
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error('Groq error (' + model + '): ' + (err.error?.message || resp.status));
+  }
+  const data = await resp.json();
+  return data.choices[0].message.content.trim();
+}
+
+async function geminiCall(apiKey, prompt) {
+  const url = GEMINI_BASE + '?key=' + apiKey;
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 800, temperature: 0.5 }
+    })
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error('Gemini error: ' + (err.error?.message || resp.status));
+  }
+  const data = await resp.json();
+  return data.candidates[0].content.parts[0].text.trim();
+}
+
+async function runCouncil() {
+  clearError();
+  const groqKey = document.getElementById('groq-key').value.trim();
+  const googleKey = document.getElementById('google-key').value.trim();
+  const query = document.getElementById('query').value.trim();
+
+  if (!groqKey) return showError('Please enter your Groq API key.');
+  if (!googleKey) return showError('Please enter your Google AI Studio API key.');
+  if (!query) return showError('Please enter a question for the council.');
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Convening…';
+
+  document.getElementById('progress').style.display = 'block';
+  document.getElementById('results').style.display = 'block';
+
+  // Reset displays
+  ['llama','gemma','mixtral'].forEach(m => {
+    document.getElementById('content-' + m).textContent = 'Thinking…';
+    document.getElementById('review-' + m).textContent = 'Thinking…';
+  });
+  document.getElementById('chairman-response').textContent = 'Waiting for council to complete…';
+
+  // Activate first tab
+  showTab('llama');
+
+  try {
+    // ── STAGE 1 ──
+    setStep(1);
+
+    const stage1Prompt = [{ role: 'user', content: query }];
+
+    const [llamaResp, gemmaResp, mixtralResp] = await Promise.all([
+      groqCall(groqKey, MODELS.llama, stage1Prompt),
+      groqCall(groqKey, MODELS.gemma, stage1Prompt),
+      groqCall(groqKey, MODELS.mixtral, stage1Prompt)
+    ]);
+
+    document.getElementById('content-llama').textContent = llamaResp;
+    document.getElementById('content-gemma').textContent = gemmaResp;
+    document.getElementById('content-mixtral').textContent = mixtralResp;
+
+    // ── STAGE 2 ──
+    setStep(2);
+
+    const reviewPrompt = (ownName, others) =>
+      `The user asked: "${query}"\n\nTwo other AI models (anonymous) responded:\n\nResponse A:\n${others[0]}\n\nResponse B:\n${others[1]}\n\nAs ${ownName}, briefly review both responses. Which is stronger and why? What did each miss? Be concise and honest. Max 150 words.`;
+
+    const [llamaReview, gemmaReview, mixtralReview] = await Promise.all([
+      groqCall(groqKey, MODELS.llama, [{ role: 'user', content: reviewPrompt('LLaMA', [gemmaResp, mixtralResp]) }]),
+      groqCall(groqKey, MODELS.gemma, [{ role: 'user', content: reviewPrompt('Gemma', [llamaResp, mixtralResp]) }]),
+      groqCall(groqKey, MODELS.mixtral, [{ role: 'user', content: reviewPrompt('Mixtral', [llamaResp, gemmaResp]) }])
+    ]);
+
+    document.getElementById('review-llama').textContent = llamaReview;
+    document.getElementById('review-gemma').textContent = gemmaReview;
+    document.getElementById('review-mixtral').textContent = mixtralReview;
+
+    // ── STAGE 3: Chairman ──
+    setStep(3);
+
+    const chairmanPrompt = `You are the Chairman of an AI Council. The user asked:\n"${query}"\n\nThree council members responded:\n\nMember 1 (LLaMA 3.3):\n${llamaResp}\n\nMember 2 (Gemma 2):\n${gemmaResp}\n\nMember 3 (Mixtral):\n${mixtralResp}\n\nPeer reviews:\nLLaMA on others: ${llamaReview}\nGemma on others: ${gemmaReview}\nMixtral on others: ${mixtralReview}\n\nSynthesize the best points from all responses into a single, clear, authoritative final answer. Be direct and comprehensive. This is the definitive response the user sees.`;
+
+    const chairmanResp = await geminiCall(googleKey, chairmanPrompt);
+    document.getElementById('chairman-response').textContent = chairmanResp;
+
+    // Done
+    ['step1','step2','step3'].forEach(id => {
+      document.getElementById(id).className = 'step done';
+    });
+
+  } catch (err) {
+    showError(err.message);
+    document.getElementById('progress').style.display = 'none';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Convene Council';
+}
+
+// Enter key in textarea (Ctrl+Enter / Cmd+Enter)
+document.getElementById('query').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) runCouncil();
+});
+
+// Activate first tab on load
+showTab('llama');
+</script>
 
 </body>
 </html>
