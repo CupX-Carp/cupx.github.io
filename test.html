@@ -267,66 +267,84 @@ textarea#q::placeholder{color:var(--muted);}
 <script>
 // ════════════════════════════════════════════════════════
 // FREE MODEL CATALOGUE
-// Each entry: { id, name, emoji, color, provider, forChair }
-// Priority order within each provider = best first
+// canonicalName = dedup key so same model from different
+// providers isn't used twice in one council
 // ════════════════════════════════════════════════════════
 const CATALOGUE = {
   groq: [
-    {id:'llama-3.3-70b-versatile',                       name:'LLaMA 3.3 70B',    emoji:'🦙', color:'#fb923c', forChair:true},
-    {id:'gemma-3-27b-it',                                name:'Gemma 3 27B',      emoji:'💎', color:'#4ade80', forChair:true},
-    {id:'mistral-saba-24b',                              name:'Mistral Saba 24B', emoji:'🌊', color:'#60a5fa', forChair:true},
-    {id:'meta-llama/llama-4-scout-17b-16e-instruct',     name:'LLaMA 4 Scout',   emoji:'🚀', color:'#f472b6', forChair:false},
-    {id:'llama-3.1-8b-instant',                          name:'LLaMA 3.1 8B',    emoji:'⚡', color:'#a78bfa', forChair:false},
-    {id:'gemma2-9b-it',                                  name:'Gemma 2 9B',       emoji:'🔷', color:'#34d399', forChair:false},
+    {id:'llama-3.3-70b-versatile',                   canon:'llama33-70b',    name:'LLaMA 3.3 70B',    emoji:'🦙', color:'#fb923c', forChair:true},
+    {id:'mistral-saba-24b',                          canon:'mistral-saba',   name:'Mistral Saba 24B', emoji:'🌊', color:'#60a5fa', forChair:true},
+    {id:'gemma-3-27b-it',                            canon:'gemma3-27b',     name:'Gemma 3 27B',      emoji:'💎', color:'#4ade80', forChair:true},
+    {id:'meta-llama/llama-4-scout-17b-16e-instruct', canon:'llama4-scout',   name:'LLaMA 4 Scout',    emoji:'🚀', color:'#f472b6', forChair:false},
+    {id:'llama-3.1-8b-instant',                      canon:'llama31-8b',     name:'LLaMA 3.1 8B',     emoji:'⚡', color:'#a78bfa', forChair:false},
+    {id:'gemma2-9b-it',                              canon:'gemma2-9b',      name:'Gemma 2 9B',       emoji:'🔷', color:'#34d399', forChair:false},
   ],
   google: [
-    {id:'gemini-2.0-flash',       name:'Gemini 2.0 Flash', emoji:'✨', color:'#4ade80', forChair:true},
-    {id:'gemini-1.5-flash',       name:'Gemini 1.5 Flash', emoji:'🌟', color:'#86efac', forChair:true},
-    {id:'gemini-1.5-flash-8b',    name:'Gemini 1.5 Flash 8B', emoji:'💫', color:'#bbf7d0', forChair:false},
+    {id:'gemini-2.0-flash',    canon:'gemini20-flash', name:'Gemini 2.0 Flash',    emoji:'✨', color:'#4ade80', forChair:true},
+    {id:'gemini-1.5-flash',    canon:'gemini15-flash', name:'Gemini 1.5 Flash',    emoji:'🌟', color:'#86efac', forChair:true},
+    {id:'gemini-1.5-flash-8b', canon:'gemini15-8b',    name:'Gemini 1.5 Flash 8B', emoji:'💫', color:'#bbf7d0', forChair:false},
   ],
   openrouter: [
-    {id:'google/gemini-2.0-flash-exp:free',              name:'Gemini 2.0 Flash',  emoji:'✨', color:'#4ade80', forChair:true},
-    {id:'google/gemma-3-27b-it:free',                    name:'Gemma 3 27B',       emoji:'💎', color:'#86efac', forChair:true},
-    {id:'mistralai/mistral-small-3.1-24b-instruct:free', name:'Mistral Small 3.1', emoji:'🌊', color:'#93c5fd', forChair:true},
-    {id:'meta-llama/llama-3.3-70b-instruct:free',        name:'LLaMA 3.3 70B',    emoji:'🦙', color:'#fb923c', forChair:false},
-    {id:'deepseek/deepseek-r1:free',                     name:'DeepSeek R1',       emoji:'🧠', color:'#c084fc', forChair:false},
+    {id:'google/gemini-2.0-flash-exp:free',              canon:'gemini20-flash', name:'Gemini 2.0 Flash',  emoji:'✨', color:'#4ade80', forChair:true},
+    {id:'mistralai/mistral-small-3.1-24b-instruct:free', canon:'mistral31-24b',  name:'Mistral Small 3.1', emoji:'🌊', color:'#93c5fd', forChair:true},
+    {id:'google/gemma-3-27b-it:free',                    canon:'gemma3-27b',     name:'Gemma 3 27B',       emoji:'💎', color:'#86efac', forChair:true},
+    {id:'meta-llama/llama-3.3-70b-instruct:free',        canon:'llama33-70b',    name:'LLaMA 3.3 70B',     emoji:'🦙', color:'#fb923c', forChair:false},
+    {id:'deepseek/deepseek-r1:free',                     canon:'deepseek-r1',    name:'DeepSeek R1',       emoji:'🧠', color:'#c084fc', forChair:false},
   ]
 };
 
-// API callers
-async function callGroq(key, modelId, messages){
+// ════════════════════════════════════════════════════════
+// API CALLERS — each returns text or throws
+// ════════════════════════════════════════════════════════
+// Timeout wrapper
+function withTimeout(promise, ms, label){
+  return Promise.race([
+    promise,
+    new Promise((_,rej)=>setTimeout(()=>rej(new Error(`${label} timed out after ${ms/1000}s`)),ms))
+  ]);
+}
+
+async function callGroqRaw(key, modelId, messages){
   const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
     body:JSON.stringify({model:modelId,messages,max_tokens:650,temperature:0.7})
   });
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'Groq error '+r.status);}
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'Groq '+r.status);}
   return (await r.json()).choices[0].message.content.trim();
 }
 
-async function callGoogle(key, modelId, messages){
-  // Convert OpenAI-style messages to Google format
+async function callGoogleRaw(key, modelId, messages){
   const contents=messages.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
   const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${key}`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({contents,generationConfig:{maxOutputTokens:650,temperature:0.7}})
   });
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'Google error '+r.status);}
-  return (await r.json()).candidates[0].content.parts[0].text.trim();
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'Google '+r.status);}
+  const txt=(await r.json()).candidates?.[0]?.content?.parts?.[0]?.text;
+  if(!txt) throw new Error('Google returned empty response');
+  return txt.trim();
 }
 
-async function callOpenRouter(key, modelId, messages){
+async function callOpenRouterRaw(key, modelId, messages){
   const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':'Bearer '+key,'HTTP-Referer':'https://cupx.in','X-Title':'CupX LLM Council'},
     body:JSON.stringify({model:modelId,messages,max_tokens:650})
   });
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'OpenRouter error '+r.status);}
-  const txt=(await r.json()).choices?.[0]?.message?.content?.trim();
-  if(!txt) throw new Error('Empty response from OpenRouter');
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'OpenRouter '+r.status);}
+  const data=await r.json();
+  if(data.error) throw new Error(data.error.message||'OpenRouter model error');
+  const txt=data.choices?.[0]?.message?.content?.trim();
+  if(!txt) throw new Error('OpenRouter returned empty response');
   return txt;
 }
+
+// With timeouts: Groq 18s, Google 22s, OpenRouter 15s (free tier is flaky, fail fast)
+async function callGroq(key,id,msgs){ return withTimeout(callGroqRaw(key,id,msgs),18000,'Groq'); }
+async function callGoogle(key,id,msgs){ return withTimeout(callGoogleRaw(key,id,msgs),22000,'Google'); }
+async function callOpenRouter(key,id,msgs){ return withTimeout(callOpenRouterRaw(key,id,msgs),15000,'OpenRouter'); }
 
 function getKeys(){
   return {
@@ -337,56 +355,93 @@ function getKeys(){
 }
 
 // ════════════════════════════════════════════════════════
-// COUNCIL ASSEMBLY
-// Given available keys, pick 3 members + 1 chairman
-// Strategy: spread across providers for diversity
+// BUILD FLAT POOL — all available model+key+caller combos
+// Sorted: Groq first (most reliable free tier), then Google,
+// then OpenRouter. canonicalName used to prevent duplicates.
+// ════════════════════════════════════════════════════════
+function buildPool(){
+  const keys=getKeys();
+  const pool=[];
+  if(keys.groq)   CATALOGUE.groq.forEach(m=>pool.push({...m,provider:'groq',  key:keys.groq,  caller:callGroq}));
+  if(keys.google) CATALOGUE.google.forEach(m=>pool.push({...m,provider:'google',key:keys.google,caller:callGoogle}));
+  if(keys.or)     CATALOGUE.openrouter.forEach(m=>pool.push({...m,provider:'openrouter',key:keys.or,caller:callOpenRouter}));
+  return pool;
+}
+
+// ════════════════════════════════════════════════════════
+// COUNCIL ASSEMBLY — pick 3 diverse members + 1 chairman
+// No canon duplicates. One per provider first for diversity.
 // ════════════════════════════════════════════════════════
 function assembleCouncil(){
-  const keys=getKeys();
-  const avail=[]; // {model, provider, key, caller}
+  const pool=buildPool();
+  if(!pool.length) return null;
 
-  if(keys.groq) CATALOGUE.groq.forEach(m=>avail.push({...m,provider:'groq',key:keys.groq,call:(k,id,msgs)=>callGroq(k,id,msgs)}));
-  if(keys.google) CATALOGUE.google.forEach(m=>avail.push({...m,provider:'google',key:keys.google,call:(k,id,msgs)=>callGoogle(k,id,msgs)}));
-  if(keys.or) CATALOGUE.openrouter.forEach(m=>avail.push({...m,provider:'openrouter',key:keys.or,call:(k,id,msgs)=>callOpenRouter(k,id,msgs)}));
-
-  if(avail.length===0) return null;
-
-  // Pick 3 most diverse members — prefer different providers
   const members=[];
+  const usedCanons=new Set();
   const usedProviders=new Set();
 
-  // First pass: one from each provider
-  for(const m of avail){
+  // Pass 1: one from each provider (most diversity)
+  for(const m of pool){
     if(members.length>=3) break;
-    if(!usedProviders.has(m.provider)){
-      members.push(m);
-      usedProviders.add(m.provider);
+    if(!usedProviders.has(m.provider) && !usedCanons.has(m.canon)){
+      members.push(m); usedProviders.add(m.provider); usedCanons.add(m.canon);
     }
   }
-  // Second pass: fill remaining slots from any provider (avoid duplicate model IDs)
-  const usedIds=new Set(members.map(m=>m.id));
-  for(const m of avail){
+  // Pass 2: fill remaining from any provider, no canon repeat
+  for(const m of pool){
     if(members.length>=3) break;
-    if(!usedIds.has(m.id)){members.push(m);usedIds.add(m.id);}
+    if(!usedCanons.has(m.canon)){
+      members.push(m); usedCanons.add(m.canon);
+    }
   }
-  // If still less than 3 (very few models) — just use what we have (min 1)
-  if(members.length===0) return null;
+  if(!members.length) return null;
 
-  // Chairman: prefer Google Gemini, then OpenRouter, then Groq top model
-  // Must be different from members if possible, must have forChair:true
-  const chairCandidates=avail.filter(m=>m.forChair && !usedIds.has(m.id));
-  // If no unused forChair model, allow reuse
-  const chairPool=chairCandidates.length>0 ? chairCandidates : avail.filter(m=>m.forChair);
-  // Prefer Google > OpenRouter > Groq for chairman
+  // Chairman: prefer Google > OpenRouter > Groq, must be forChair:true, no canon repeat
   const chairOrder=['google','openrouter','groq'];
   let chair=null;
   for(const pv of chairOrder){
-    chair=chairPool.find(m=>m.provider===pv);
+    chair=pool.find(m=>m.provider===pv && m.forChair && !usedCanons.has(m.canon));
     if(chair) break;
   }
-  if(!chair) chair=avail.find(m=>m.forChair)||avail[0];
+  // Fallback: allow canon reuse if needed
+  if(!chair){
+    for(const pv of chairOrder){
+      chair=pool.find(m=>m.provider===pv && m.forChair);
+      if(chair) break;
+    }
+  }
+  if(!chair) chair=pool.find(m=>m.forChair)||pool[0];
 
   return {members, chair};
+}
+
+// ════════════════════════════════════════════════════════
+// RESILIENT CALLER
+// Tries primary first. On any failure, walks the ENTIRE
+// fresh pool until something works. No pre-filtering —
+// this guarantees maximum fallback coverage even when
+// only one provider (e.g. only OpenRouter) is available.
+// ════════════════════════════════════════════════════════
+async function resilientCall(primary, messages, slotLabel){
+  const pool = buildPool();
+  const tried = new Set();
+  // Primary first, then all others in pool order
+  const attempts = [primary, ...pool.filter(m => m.id !== primary.id)];
+
+  for(const m of attempts){
+    if(tried.has(m.id)) continue;
+    tried.add(m.id);
+    const isFirst = (m.id === primary.id);
+    if(!isFirst) addLog(`↻ ${slotLabel} → ${m.name} (${m.provider})`, 'warn');
+    try{
+      const res = await m.caller(m.key, m.id, messages);
+      if(!isFirst) addLog(`✓ ${m.name} succeeded`, 'recv');
+      return {result: res, model: m};
+    }catch(e){
+      addLog(`⚠ ${m.name}: ${e.message.slice(0,55)}`, 'warn');
+    }
+  }
+  throw new Error(`${slotLabel}: every available model failed. Check your API key(s).`);
 }
 
 // ════════════════════════════════════════════════════════
@@ -541,11 +596,19 @@ async function startCouncil(){
   if(!council){errEl.style.display='block';errEl.textContent='⚠ Add at least one API key above.';return;}
   if(!query){errEl.style.display='block';errEl.textContent='⚠ Ask a question first.';return;}
 
+  // Clear the query box immediately on submit
+  $('q').value='';
+
   const {members,chair}=council;
   const pvLabel={groq:'Groq',google:'Google AI Studio',openrouter:'OpenRouter'};
 
+  // Full pool for fallbacks (all available models)
+  const pool=buildPool();
+
   const btn=$('run-btn');
+  // Button stays disabled until the ENTIRE session (all 3 stages) completes
   btn.disabled=true; btn.textContent='Convening…';
+
   $('flow-section').style.display='block';
   $('results-section').style.display='block';
   $('log').innerHTML='';
@@ -557,6 +620,10 @@ async function startCouncil(){
   setStageBar(0);
   $('flow-section').scrollIntoView({behavior:'smooth',block:'start'});
   await delay(500);
+
+  // Track actual models used (may change after fallback)
+  const activeMembers=[...members];
+  const activeChair={...chair};
 
   try{
     /* ── STAGE 1 ── */
@@ -573,45 +640,63 @@ async function startCouncil(){
     setN('user','s-ok','sent ✓');
     members.forEach((m,i)=>{setN('m'+i,'s-think','thinking…');addLog(`→ ${m.name} processing`,'send');});
 
+    // Fallback pool for members: exclude the primary assigned models
+
     const responses=await Promise.all(members.map(async(m,i)=>{
       try{
-        const res=await m.call(m.key,m.id,[{role:'user',content:query}]);
-        addLog(`← ${m.name} (${res.split(' ').length}w)`,'recv');
+        const {result,model}=await resilientCall(m,[{role:'user',content:query}],`Member ${i+1}`);
+        activeMembers[i]=model; // update to actual model used
+        // update node label if fallback was used
+        if(model.canon!==m.canon){
+          const lbl=$('nc-m'+i);
+          if(lbl){lbl.textContent=model.emoji;}
+          const flbl=lbl?.parentElement?.querySelector('.flbl');
+          if(flbl) flbl.textContent=model.name.split(' ').slice(0,2).join(' ');
+          // Update result tab
+          const tab=$('rtab-'+i);
+          if(tab) tab.textContent=`${model.emoji} ${model.name}`;
+          const rname=document.querySelector(`#rpanel-${i} .rname`);
+          if(rname){rname.textContent=model.name;rname.style.color=model.color;}
+          const rmodel=document.querySelector(`#rpanel-${i} .rmodel`);
+          if(rmodel) rmodel.textContent=model.id;
+        }
+        addLog(`← ${model.name} (${result.split(' ').length}w)`,'recv');
         setN('m'+i,'s-ok','done ✓');
-        burst('m'+i,'user',m.color,2);
-        return res;
+        burst('m'+i,'user',model.color,2);
+        return result;
       }catch(e){
-        addLog(`✗ ${m.name}: ${e.message.slice(0,60)}`,'err');
+        addLog(`✗ Member ${i+1} all fallbacks failed: ${e.message.slice(0,50)}`,'err');
         setN('m'+i,'s-err','error ✗');
         return null;
       }
     }));
 
     await delay(300); arrDn('arr1');
-    if(responses.every(r=>r===null)) throw new Error('All models failed. Check your API keys.');
+    if(responses.every(r=>r===null)) throw new Error('All council members failed. Check your API keys.');
     await Promise.all(responses.map((res,i)=>typewrite('r-m'+i,res||'⚠ Unavailable',5)));
 
     /* ── STAGE 2 ── */
     setStageBar(2);
     addLog('Stage 2: peer reviews initiated','info');
     arrLit('arr2');
-    members.forEach((m,i)=>setTimeout(()=>burst('m'+i,'r'+i,m.color),i*110));
+    activeMembers.forEach((m,i)=>setTimeout(()=>burst('m'+i,'r'+i,m.color),i*110));
     await delay(500);
-    members.forEach((_,i)=>setN('r'+i,'s-rev','reviewing…'));
+    activeMembers.forEach((_,i)=>setN('r'+i,'s-rev','reviewing…'));
     addLog('→ Models cross-reviewing each other','send');
 
-    const reviews=await Promise.all(members.map(async(m,i)=>{
-      const others=members.filter((_,j)=>j!==i)
-        .map((o,_,__)=>`${o.name}:\n${responses[members.indexOf(o)]||'[unavailable]'}`).join('\n\n');
+
+    const reviews=await Promise.all(activeMembers.map(async(m,i)=>{
+      const others=activeMembers.filter((_,j)=>j!==i)
+        .map(o=>`${o.name}:\n${responses[activeMembers.indexOf(o)]||'[unavailable]'}`).join('\n\n');
       const prompt=`The user asked: "${query}"\n\nOther council members responded:\n\n${others}\n\nAs ${m.name}, critically compare these responses. Which is strongest and why? What is each missing? Be direct and concise. Max 100 words.`;
       try{
-        const res=await m.call(m.key,m.id,[{role:'user',content:prompt}]);
-        addLog(`← ${m.name} review (${res.split(' ').length}w)`,'recv');
+        const {result,model}=await resilientCall(m,[{role:'user',content:prompt}],`Review ${i+1}`);
+        addLog(`← ${model.name} review (${result.split(' ').length}w)`,'recv');
         setN('r'+i,'s-ok','done ✓');
-        burst('r'+i,'chair',m.color,2);
-        return res;
+        burst('r'+i,'chair',model.color,2);
+        return result;
       }catch(e){
-        addLog(`✗ ${m.name} review failed`,'warn');
+        addLog(`✗ Review ${i+1} all fallbacks failed`,'warn');
         setN('r'+i,'s-err','error ✗');
         return null;
       }
@@ -622,18 +707,20 @@ async function startCouncil(){
 
     /* ── STAGE 3 ── */
     setStageBar(3);
-    addLog(`Stage 3: ${chair.name} synthesizing…`,'chair');
+    addLog(`Stage 3: ${activeChair.name} synthesizing…`,'chair');
     arrLit('arr3'); setN('chair','s-chair','synthesizing…');
-    $('cvmodel').textContent=`${chair.name} · ${pvLabel[chair.provider]}`;
 
     const chairPrompt=`You are the Chairman of an AI Council. The user asked:\n"${query}"\n\nCouncil member opinions:\n\n${
-      members.map((m,i)=>`${m.name}:\n${responses[i]||'[unavailable]'}`).join('\n\n')
+      activeMembers.map((m,i)=>`${m.name}:\n${responses[i]||'[unavailable]'}`).join('\n\n')
     }\n\nPeer reviews:\n${
-      members.map((m,i)=>`${m.name} peer review:\n${reviews[i]||'[unavailable]'}`).join('\n\n')
+      activeMembers.map((m,i)=>`${m.name} peer review:\n${reviews[i]||'[unavailable]'}`).join('\n\n')
     }\n\nSynthesize the strongest, most accurate insights into one clear, authoritative final answer. Be comprehensive, balanced, and direct.`;
 
-    const verdict=await chair.call(chair.key,chair.id,[{role:'user',content:chairPrompt}]);
-    addLog(`← Chairman verdict (${verdict.split(' ').length}w)`,'chair');
+    // Chairman also gets fallback
+    const {result:verdict, model:usedChair}=await resilientCall(activeChair,[{role:'user',content:chairPrompt}],'Chairman');
+
+    $('cvmodel').textContent=`${usedChair.name} · ${pvLabel[usedChair.provider]}`;
+    addLog(`← Chairman verdict via ${usedChair.name} (${verdict.split(' ').length}w)`,'chair');
     arrDn('arr3');
     setN('chair','s-final','verdict ★');
     burst('chair','user','#38bdf8',3);
@@ -649,6 +736,8 @@ async function startCouncil(){
     errEl.textContent='⚠ '+e.message;
     addLog('ERROR: '+e.message,'err');
   }
+
+  // Re-enable button only after everything is fully done
   btn.disabled=false; btn.textContent='Convene Council ▶';
 }
 
