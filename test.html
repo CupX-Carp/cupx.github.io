@@ -497,23 +497,42 @@ function assemble(){
 // Tries primary. On any failure walks the ENTIRE pool until
 // something responds. Guarantees a result as long as any key works.
 // ═══════════════════════════════════════════════════════════════
-async function resilient(primary, msgs, label){
+// usedIds = Set of model ids already successfully used by earlier slots.
+// Skips those in first pass so each slot gets a different model.
+// Falls back to allowing reuse only if truly no other option exists.
+async function resilient(primary, msgs, label, usedIds=null){
   const pool=buildPool();
-  // Build attempt order: primary first, then all others
-  const seen=new Set([primary.id]);
-  const order=[primary,...pool.filter(m=>!seen.has(m.id)&&seen.add(m.id))];
+  // Deduplicated order: primary first, then rest of pool
+  const seen=new Set();
+  const order=[];
+  for(const m of [primary,...pool]){
+    if(!seen.has(m.id)){seen.add(m.id);order.push(m);}
+  }
 
+  // Pass 1: skip already-used models
   for(const m of order){
+    if(usedIds && usedIds.has(m.id)) continue;
     const first=(m.id===primary.id);
     if(!first) addLog(`↻ ${label} → ${m.emoji} ${m.name} (${PV_LABEL[m.pv]})`,'warn');
     try{
       const text=await callModel(m, m.key, msgs);
       if(!first) addLog(`✓ ${m.emoji} ${m.name} succeeded`,'recv');
+      if(usedIds) usedIds.add(m.id);
       return {text, model:m};
     }catch(e){
       addLog(`⚠ ${m.emoji} ${m.name}: ${e.message.slice(0,60)}`,'warn');
     }
   }
+
+  // Pass 2: allow reuse — better a duplicate than silence
+  addLog(`⚠ ${label}: all unique models exhausted, allowing reuse`,'warn');
+  for(const m of order){
+    try{
+      const text=await callModel(m, m.key, msgs);
+      return {text, model:m};
+    }catch(e){ /* keep trying */ }
+  }
+
   throw new Error(`${label}: every available model failed. Check your API key(s).`);
 }
 
@@ -711,21 +730,26 @@ async function startCouncil(){
     setN('user','s-ok','sent ✓');
     members.forEach((m,i)=>{setN('m'+i,'s-think','thinking…'); addLog(`→ ${m.emoji} ${m.name} processing`,'send');});
 
-    const responses=await Promise.all(members.map(async(m,i)=>{
+    // Sequential — each slot waits for the previous to claim its model
+    // so the usedIds set is accurate before the next slot picks
+    const memberUsedIds = new Set();
+    const responses=[];
+    for(let i=0;i<members.length;i++){
+      const m=members[i];
       try{
-        const {text,model}=await resilient(m,[{role:'user',content:query}],`Member ${i+1}`);
+        const {text,model}=await resilient(m,[{role:'user',content:query}],`Member ${i+1}`,memberUsedIds);
         actual[i]=model;
         updateMemberUI(i,model);
         addLog(`← ${model.emoji} ${model.name} (${text.split(' ').length}w)`,'recv');
         setN('m'+i,'s-ok','done ✓');
         burst('m'+i,'user',model.color,2);
-        return text;
+        responses.push(text);
       }catch(e){
         addLog(`✗ Member ${i+1}: ${e.message.slice(0,60)}`,'err');
         setN('m'+i,'s-err','error ✗');
-        return null;
+        responses.push(null);
       }
-    }));
+    }
 
     await wait(300); arrDn('arr1');
     if(responses.every(r=>r===null)) throw new Error('All council members failed. Check your API keys.');
